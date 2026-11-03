@@ -79,8 +79,8 @@
         </section>
 
         <section class="stack-row">
-          <h2>Dibangun dengan stack di gambar referensi</h2>
-          <p>RESTful API, JWT, Vue, TypeScript, Auth, Composables, dan TanStack Query. Backend Go, database SQLite, frontend Vue 3.</p>
+          <h2>Stack teknologi modern</h2>
+          <p>Dibangun dengan arsitektur full-stack: RESTful API berbasis Go, autentikasi JWT, database SQLite, dan frontend Vue 3 dengan TypeScript dan TanStack Query untuk state management.</p>
           <ul>
             <li>Golang</li>
             <li>Vue 3</li>
