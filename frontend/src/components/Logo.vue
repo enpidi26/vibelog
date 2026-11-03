@@ -44,4 +44,7 @@
   letter-spacing: 0.34em;
   color: #5c5c54;
 }
+.logo:hover .logo-mark {
+  animation: wiggle 0.4s ease-in-out;
+}
 </style>
