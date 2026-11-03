@@ -7,7 +7,7 @@
           <a href="#fitur">Fitur</a>
           <a href="#mulai">Mulai</a>
         </nav>
-        <nav aria-label="Akun">
+        <nav class="right-nav" aria-label="Akun">
           <RouterLink to="/login" class="nav-link">Masuk</RouterLink>
           <RouterLink to="/register" class="btn primary small">Daftar gratis</RouterLink>
         </nav>
@@ -357,11 +357,24 @@ const cards: FeatureCard[] = [
 .frame-foot p {
   margin: 0;
 }
+.center-nav {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
 .center-nav a,
 .nav-link {
   font-weight: 500;
   text-decoration: none;
   font-size: 0.92rem;
+  transition: color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  display: inline-block;
+}
+.center-nav a:hover,
+.nav-link:hover {
+  color: var(--orange);
+  transform: translateY(-1px);
 }
 .hero-title {
   animation: fade-up var(--dur-mid) var(--ease-out) both;
