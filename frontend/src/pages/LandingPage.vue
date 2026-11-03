@@ -16,13 +16,13 @@
       <main>
         <section class="hero">
           <h1 class="pixel-headline hero-title">Vibe_Log</h1>
-          <div class="hero-grid">
+          <div class="hero-grid anim-fade-up" style="animation-delay: 80ms">
             <div class="hero-cell intro-cell">
               <p><span class="bullet" aria-hidden="true">►</span> Catat prompt, nilai hasilnya, dan ulangi yang berhasil di iterasi berikutnya.</p>
             </div>
             <div class="hero-cell deco-cell">
               <span class="tag-chip orange">Baru</span>
-              <span class="plus-motif" aria-hidden="true">+</span>
+              <span class="plus-motif pulse-motif" aria-hidden="true">+</span>
               <span class="micro-label">Prompt Pack</span>
             </div>
             <div class="hero-cell featured-cell">
@@ -202,6 +202,7 @@ const cards: FeatureCard[] = [
   background: #fff;
   margin-top: 1.25rem;
   overflow: hidden;
+  animation: fade-up var(--dur-mid) var(--ease-out) both;
 }
 .hero-cell {
   padding: 1rem 1.1rem;
@@ -231,6 +232,9 @@ const cards: FeatureCard[] = [
   color: transparent;
   -webkit-text-stroke: 1.5px #c9c9bf;
   align-self: center;
+}
+.pulse-motif {
+  animation: pulse-soft 2.6s ease-in-out infinite;
 }
 .featured-cell h2 {
   margin: 0.5rem 0 0.3rem;
