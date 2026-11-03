@@ -74,7 +74,7 @@
       <div class="filters">
         <div class="field">
           <label for="filter-q">Cari judul, prompt, catatan, atau tag</label>
-          <input id="filter-q" v-model="filters.q" type="search" placeholder="Contoh: auth, refactor..." />
+          <input id="filter-q" v-model="filters.q" type="search" placeholder="Cari judul, prompt, tag..." />
         </div>
         <div class="field">
           <label for="filter-model">Model</label>

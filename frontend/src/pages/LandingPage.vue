@@ -21,7 +21,6 @@
               <p><span class="bullet" aria-hidden="true">►</span> Catat prompt, nilai hasilnya, dan ulangi yang berhasil di iterasi berikutnya.</p>
             </div>
             <div class="hero-cell deco-cell">
-              <span class="tag-chip orange">Baru</span>
               <span class="plus-motif pulse-motif" aria-hidden="true">+</span>
               <span class="micro-label">Prompt Pack</span>
             </div>
@@ -44,7 +43,6 @@
             <p class="micro-label">Fitur</p>
             <p class="pixel-small count">06</p>
           </div>
-          <p class="count-note">Semua fitur memakai data akunmu sendiri. Tidak ada data contoh yang dicampur.</p>
         </section>
 
         <section class="card-grid" aria-label="Fitur VibeLog">
@@ -77,23 +75,10 @@
             <RouterLink to="/login" class="btn">Saya sudah punya akun</RouterLink>
           </div>
         </section>
-
-        <section class="stack-row">
-          <h2>Stack teknologi modern</h2>
-          <p>Dibangun dengan arsitektur full-stack: RESTful API berbasis Go, autentikasi JWT, database SQLite, dan frontend Vue 3 dengan TypeScript dan TanStack Query untuk state management.</p>
-          <ul>
-            <li>Golang</li>
-            <li>Vue 3</li>
-            <li>TypeScript</li>
-            <li>JWT Auth</li>
-            <li>TanStack Query</li>
-            <li>SQLite</li>
-          </ul>
-        </section>
       </main>
 
       <footer class="frame-foot">
-        <p class="micro-label">VibeLog. Data tiap akun terpisah. Menghapus proyek tidak menghapus entri jurnalnya.</p>
+        <p class="micro-label">© 2026 VibeLog. Semua hak dilindungi.</p>
       </footer>
     </div>
   </div>

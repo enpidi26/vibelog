@@ -2,7 +2,7 @@
   <form class="inline-form" @submit.prevent="onSubmit">
     <div class="field">
       <label for="project-name">Nama proyek</label>
-      <input id="project-name" v-model="name" type="text" maxlength="80" required placeholder="Contoh: Toko online Sudoy" />
+      <input id="project-name" v-model="name" type="text" maxlength="80" required placeholder="Toko online" />
     </div>
     <div class="field">
       <label for="project-desc">Deskripsi (opsional)</label>

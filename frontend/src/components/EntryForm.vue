@@ -3,7 +3,7 @@
     <div class="form-grid">
       <div class="field span-2">
         <label for="entry-title">Judul</label>
-        <input id="entry-title" v-model="title" type="text" maxlength="120" required placeholder="Contoh: Perbaiki login yang kadang gagal" />
+        <input id="entry-title" v-model="title" type="text" maxlength="120" required placeholder="Perbaiki login yang kadang gagal" />
       </div>
       <div class="field">
         <label for="entry-project">Proyek</label>
@@ -23,14 +23,14 @@
       </div>
       <div class="field">
         <label for="entry-model">Model AI</label>
-        <input id="entry-model" v-model="model" type="text" maxlength="60" required list="model-list" placeholder="Contoh: Claude" />
+        <input id="entry-model" v-model="model" type="text" maxlength="60" required list="model-list" placeholder="Claude" />
         <datalist id="model-list">
           <option v-for="m in MODEL_SUGGESTIONS" :key="m" :value="m" />
         </datalist>
       </div>
       <div class="field">
         <label for="entry-tool">Tool</label>
-        <input id="entry-tool" v-model="tool" type="text" maxlength="60" required list="tool-list" placeholder="Contoh: Cursor" />
+        <input id="entry-tool" v-model="tool" type="text" maxlength="60" required list="tool-list" placeholder="Cursor" />
         <datalist id="tool-list">
           <option v-for="t in TOOL_SUGGESTIONS" :key="t" :value="t" />
         </datalist>
@@ -48,7 +48,7 @@
       </div>
       <div class="field">
         <label for="entry-tags">Tag, pisahkan koma (opsional)</label>
-        <input id="entry-tags" v-model="tagsText" type="text" placeholder="Contoh: auth, refactor, bug" />
+        <input id="entry-tags" v-model="tagsText" type="text" placeholder="auth, refactor, bug" />
       </div>
       <div class="field span-2">
         <label for="entry-prompt">Prompt yang dikirim</label>

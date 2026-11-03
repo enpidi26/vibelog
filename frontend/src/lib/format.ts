@@ -5,8 +5,8 @@ export const OUTCOME_LABELS: Record<string, string> = {
   in_progress: 'Berjalan',
 }
 
-export const MODEL_SUGGESTIONS = ['Claude', 'GPT-5', 'Gemini', 'Codex', 'Lainnya']
-export const TOOL_SUGGESTIONS = ['Cursor', 'Claude Code', 'Copilot', 'Codex', 'Gemini CLI', 'Lainnya']
+export const MODEL_SUGGESTIONS = ['Claude', 'GPT-4', 'ChatGPT', 'Gemini', 'Codex']
+export const TOOL_SUGGESTIONS = ['Cursor', 'Claude Code', 'Copilot', 'Windsurf', 'VS Code']
 export const PROJECT_COLORS = ['teal', 'amber', 'violet', 'rose', 'sky', 'lime', 'slate']
 
 export const PROJECT_COLOR_HEX: Record<string, string> = {

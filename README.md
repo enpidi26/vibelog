@@ -5,12 +5,9 @@ dikirim ke AI, catat model dan tool yang dipakai, nilai hasilnya, dan buat
 iterasi berikutnya dalam satu klik. Entri yang terfilter bisa diekspor jadi
 prompt pack Markdown atau JSON untuk dipakai ulang di AI agent atau editor.
 
-Stack sesuai gambar referensi: **RESTful API, JWT, Vue, TypeScript, Auth,
+Stack teknologi: **RESTful API, JWT, Vue, TypeScript, Auth,
 Composables, TanStack Query**. Backend **Go** (stdlib + SQLite), frontend
 **Vue 3 + TypeScript + Vite + Vue Router**.
-
-Catatan jujur soal gambar: teks kecilnya tertulis "GOLANG VUE" dan istilah
-Composables menunjuk Vue, jadi frontend memakai Vue 3, bukan React.
 
 ## Fitur
 
