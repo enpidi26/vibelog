@@ -16,7 +16,7 @@
     </header>
 
     <section class="dash-hero">
-      <h1 class="pixel-headline">Jurnal_</h1>
+      <h1 class="pixel-headline hero-title">Jurnal_</h1>
       <p class="intro">Catat prompt yang kamu kirim, nilai hasilnya, dan ulangi yang berhasil di iterasi berikutnya.</p>
     </section>
 
@@ -58,14 +58,16 @@
         <button class="btn small" type="button" @click="openEditProject(selectedProject)">Ubah proyek ini</button>
         <button class="btn small danger" type="button" @click="deleteProject(selectedProject)">Hapus proyek ini</button>
       </div>
-      <ProjectForm
-        v-if="showProjectForm"
-        :initial="editingProject"
-        :saving="projectSaving"
-        :error="projectError"
-        @submit="saveProject"
-        @cancel="showProjectForm = false"
-      />
+      <div v-if="showProjectForm" class="anim-pop">
+        <ProjectForm
+          v-if="showProjectForm"
+          :initial="editingProject"
+          :saving="projectSaving"
+          :error="projectError"
+          @submit="saveProject"
+          @cancel="showProjectForm = false"
+        />
+      </div>
     </section>
 
     <section class="panel" aria-label="Filter entri">
@@ -125,7 +127,7 @@
         <button class="btn primary" type="button" @click="openNewEntry">Entri baru</button>
       </div>
 
-      <div v-if="showEntryForm" class="panel form-panel">
+      <div v-if="showEntryForm" class="panel form-panel anim-pop">
         <h3 class="pixel-small">{{ editingEntry ? 'Ubah entri' : 'Entri baru' }}</h3>
         <EntryForm
           :initial="editingEntry"
@@ -141,23 +143,28 @@
       <p v-else-if="entriesQuery.isError.value" class="error" role="alert">
         Gagal memuat entri. <button class="link" type="button" @click="entriesQuery.refetch()">Coba lagi</button>
       </p>
-      <div v-else-if="(entriesQuery.data.value ?? []).length === 0" class="empty">
+      <div v-else-if="(entriesQuery.data.value ?? []).length === 0" class="empty anim-fade-up">
         <p><strong>Belum ada entri yang cocok.</strong></p>
         <p>Buat entri pertama dengan prompt yang baru kamu kirim ke AI, lalu nilai hasilnya.</p>
         <button class="btn primary" type="button" @click="openNewEntry">Buat entri pertama</button>
       </div>
       <div v-else class="card-grid entry-grid">
-        <EntryCard
-          v-for="entry in entriesQuery.data.value"
+        <div
+          v-for="(entry, i) in entriesQuery.data.value"
           :key="entry.id"
-          :entry="entry"
-          :duplicating="duplicatingId === entry.id"
-          :deleting="deletingId === entry.id"
-          @edit="openEditEntry"
-          @duplicate="duplicateEntry"
-          @delete="deleteEntry"
-          @tag-click="(tag) => { filters.tag = tag }"
-        />
+          class="card-anim"
+          :style="{ animationDelay: (i * 50) + 'ms' }"
+        >
+          <EntryCard
+            :entry="entry"
+            :duplicating="duplicatingId === entry.id"
+            :deleting="deletingId === entry.id"
+            @edit="openEditEntry"
+            @duplicate="duplicateEntry"
+            @delete="deleteEntry"
+            @tag-click="(tag) => { filters.tag = tag }"
+          />
+        </div>
       </div>
     </section>
 
@@ -369,6 +376,12 @@ function onLogout() {
 </script>
 
 <style scoped>
+.card-anim {
+  animation: fade-up var(--dur-mid) var(--ease-out) both;
+}
+.empty {
+  animation: fade-up var(--dur-mid) var(--ease-out) both;
+}
 .dash-inner {
   padding: 0 1.25rem 1.25rem;
 }
