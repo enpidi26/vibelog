@@ -1,19 +1,19 @@
 <template>
   <section v-if="summary" class="stats-strip" aria-label="Ringkasan jurnal">
     <div class="stat-cell">
-      <span class="stat-num">{{ summary.total }}</span>
+      <span class="stat-num">{{ total }}</span>
       <span class="stat-label">Total entri</span>
     </div>
     <div class="stat-cell">
-      <span class="stat-num">{{ summary.success }}</span>
+      <span class="stat-num">{{ success }}</span>
       <span class="stat-label">Berhasil</span>
     </div>
     <div class="stat-cell">
-      <span class="stat-num">{{ summary.partial }}</span>
+      <span class="stat-num">{{ partial }}</span>
       <span class="stat-label">Sebagian</span>
     </div>
     <div class="stat-cell">
-      <span class="stat-num">{{ summary.failed }}</span>
+      <span class="stat-num">{{ failed }}</span>
       <span class="stat-label">Gagal</span>
     </div>
     <div class="stat-cell">
@@ -25,14 +25,22 @@
 </template>
 
 <script setup lang="ts">
+import { useCountUp } from '../composables/useCountUp'
 import type { Summary } from '../types'
 
-defineProps<{ summary?: Summary; loading: boolean }>()
+const props = defineProps<{ summary?: Summary; loading: boolean }>()
+
+const total = useCountUp(props.summary?.total ?? 0)
+const success = useCountUp(props.summary?.success ?? 0)
+const partial = useCountUp(props.summary?.partial ?? 0)
+const failed = useCountUp(props.summary?.failed ?? 0)
 </script>
 
 <style scoped>
 .stats-strip {
   display: grid;
+  animation: fade-up var(--dur-mid) var(--ease-out) both;
+}
   grid-template-columns: repeat(5, 1fr);
   border: 1px solid #111;
   border-radius: 4px;
