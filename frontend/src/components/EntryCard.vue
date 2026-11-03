@@ -21,10 +21,12 @@
       <button class="prompt-toggle" type="button" @click="promptOpen = !promptOpen">
         {{ promptOpen ? 'Sembunyikan prompt' : 'Lihat prompt' }}
       </button>
-      <div v-show="promptOpen" class="prompt-box">
-        <pre>{{ entry.prompt_text }}</pre>
-        <button class="btn small" type="button" @click="copyPrompt">{{ copied ? 'Prompt tersalin' : 'Salin prompt' }}</button>
-      </div>
+      <Transition name="prompt">
+        <div v-if="promptOpen" class="prompt-box">
+          <pre>{{ entry.prompt_text }}</pre>
+          <button class="btn small" type="button" @click="copyPrompt">{{ copied ? 'Prompt tersalin' : 'Salin prompt' }}</button>
+        </div>
+      </Transition>
 
       <p v-if="entry.result_notes" class="notes">{{ entry.result_notes }}</p>
 
@@ -159,5 +161,25 @@ pre {
   gap: 0.5rem;
   padding: 0.7rem 0.8rem;
   border-top: 1px solid #d2d2c8;
+}
+.prompt-enter-active,
+.prompt-leave-active {
+  transition: opacity var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-out);
+}
+.prompt-enter-from,
+.prompt-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.prompt-toggle {
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.prompt-toggle:hover {
+  color: #b83c0c;
+}
+
+.arrow-cell {
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 </style>
