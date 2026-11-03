@@ -15,7 +15,7 @@
 
       <main>
         <section class="hero">
-          <h1 class="pixel-headline">Vibe_Log</h1>
+          <h1 class="pixel-headline hero-title">Vibe_Log</h1>
           <div class="hero-grid">
             <div class="hero-cell intro-cell">
               <p><span class="bullet" aria-hidden="true">►</span> Catat prompt, nilai hasilnya, dan ulangi yang berhasil di iterasi berikutnya.</p>
@@ -48,7 +48,7 @@
         </section>
 
         <section class="card-grid" aria-label="Fitur VibeLog">
-          <article v-for="card in cards" :key="card.title" class="ref-card">
+          <article v-for="(card, i) in cards" :key="card.title" class="ref-card card-anim" :style="{ animationDelay: (i * 70) + 'ms' }">
             <div class="ref-card-top">
               <span class="tag-chip">{{ card.tag }}</span>
               <span class="micro-label">{{ card.index }}</span>
@@ -374,11 +374,33 @@ const cards: FeatureCard[] = [
   text-decoration: none;
   font-size: 0.92rem;
 }
-.center-nav a:hover,
-.nav-link:hover {
-  text-decoration: underline;
+.hero-title {
+  animation: fade-up var(--dur-mid) var(--ease-out) both;
+  display: inline-block;
 }
-@media (max-width: 720px) {
+.hero-title::after {
+  content: '_';
+  animation: blink 1.1s step-end infinite;
+  color: var(--orange);
+}
+
+.card-anim {
+  animation: fade-up var(--dur-mid) var(--ease-out) both;
+}
+
+.card-anim:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 0 var(--line-strong);
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.stack-row li {
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.stack-row li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 0 var(--line-strong);
+}
   .hero-grid {
     grid-template-columns: 1fr;
   }
