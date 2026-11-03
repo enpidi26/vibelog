@@ -39,14 +39,13 @@ const failed = useCountUp(props.summary?.failed ?? 0)
 <style scoped>
 .stats-strip {
   display: grid;
-  animation: fade-up var(--dur-mid) var(--ease-out) both;
-}
   grid-template-columns: repeat(5, 1fr);
   border: 1px solid #111;
   border-radius: 4px;
   background: #fff;
   overflow: hidden;
   margin: 1rem 0;
+  animation: fade-up var(--dur-mid) var(--ease-out) both;
 }
 .stat-cell {
   padding: 0.8rem 0.9rem;

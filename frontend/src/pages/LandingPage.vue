@@ -405,6 +405,7 @@ const cards: FeatureCard[] = [
   transform: translateY(-2px);
   box-shadow: 0 2px 0 var(--line-strong);
 }
+@media (max-width: 720px) {
   .hero-grid {
     grid-template-columns: 1fr;
   }
