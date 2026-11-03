@@ -5,7 +5,7 @@
         <Logo />
         <RouterLink to="/" class="micro-label back-link">Kembali ke beranda</RouterLink>
       </div>
-      <main class="auth-main">
+      <main class="auth-main anim-pop">
         <p class="micro-label">VibeLog, Jurnal Prompt</p>
         <h1 class="pixel-small">{{ title }}</h1>
         <p class="subtitle">{{ subtitle }}</p>
@@ -24,6 +24,7 @@ defineProps<{ title: string; subtitle: string }>()
 
 <style scoped>
 .auth-main {
+  animation: pop-in var(--dur-mid) var(--ease-spring) both;
   padding: 1.5rem 1.5rem 1.75rem;
 }
 h1 {

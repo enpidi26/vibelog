@@ -1,7 +1,7 @@
 <template>
   <div class="frame-page">
     <div class="frame frame-narrow">
-      <main class="not-found">
+      <main class="not-found anim-pop">
         <p class="pixel-small">404_</p>
         <h1>Halaman tidak ditemukan</h1>
         <p>Tautan yang kamu buka tidak ada atau sudah berubah.</p>
@@ -13,6 +13,7 @@
 
 <style scoped>
 .not-found {
+  animation: pop-in var(--dur-mid) var(--ease-spring) both;
   padding: 2rem 1.5rem;
 }
 .not-found h1 {
