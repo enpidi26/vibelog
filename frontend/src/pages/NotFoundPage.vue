@@ -1,0 +1,24 @@
+<template>
+  <div class="frame-page">
+    <div class="frame frame-narrow">
+      <main class="not-found">
+        <p class="pixel-small">404_</p>
+        <h1>Halaman tidak ditemukan</h1>
+        <p>Tautan yang kamu buka tidak ada atau sudah berubah.</p>
+        <RouterLink to="/" class="btn primary">Kembali ke beranda</RouterLink>
+      </main>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.not-found {
+  padding: 2rem 1.5rem;
+}
+.not-found h1 {
+  margin: 0.8rem 0 0.4rem;
+}
+.not-found p {
+  color: #5c5c54;
+}
+</style>

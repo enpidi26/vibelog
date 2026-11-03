@@ -1,0 +1,418 @@
+@font-face {
+  font-family: 'Press Start 2P';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/press-start-2p.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/space-grotesk-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/space-grotesk-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/space-grotesk-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/space-mono-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/space-mono-700.woff2') format('woff2');
+}
+
+:root {
+  font-family: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: #111;
+  background: #e7e7e1;
+  line-height: 1.5;
+  --paper: #f3f3ee;
+  --card: #fff;
+  --ink: #111;
+  --line: #d2d2c8;
+  --line-strong: #111;
+  --orange: #ff5c1a;
+  --orange-dark: #e64e12;
+  --muted: #5c5c54;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background-color: #e7e7e1;
+  background-image: linear-gradient(to right, rgb(0 0 0 / 0.055) 1px, transparent 1px);
+  background-size: 220px 100%;
+}
+
+a {
+  color: #111;
+}
+
+button {
+  font: inherit;
+}
+
+::selection {
+  background: var(--orange);
+  color: #fff;
+}
+
+/* Bingkai utama ala referensi: panel membulat dengan border hitam tebal
+   di atas latar bergaris vertikal. */
+.frame-page {
+  padding: 22px 16px 40px;
+}
+.frame {
+  max-width: 1060px;
+  margin: 0 auto;
+  background: var(--paper);
+  border: 3px solid var(--line-strong);
+  border-radius: 22px;
+  overflow: hidden;
+}
+.frame-narrow {
+  max-width: 560px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.8rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+.topbar nav {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.top-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.user-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.pixel-headline {
+  font-family: 'Press Start 2P', monospace;
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: clamp(1.7rem, 7.5vw, 4.6rem);
+  line-height: 1.12;
+  letter-spacing: 0;
+  margin: 0;
+  word-break: break-word;
+}
+.pixel-small {
+  font-family: 'Press Start 2P', monospace;
+  font-weight: 400;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+.micro-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 1.5px solid var(--line-strong);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn:hover:not(:disabled) {
+  background: #ecece4;
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.btn.primary {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #fff;
+}
+.btn.primary:hover:not(:disabled) {
+  background: var(--orange-dark);
+}
+.btn.small {
+  padding: 0.32rem 0.7rem;
+  font-size: 0.82rem;
+}
+.btn.block {
+  width: 100%;
+}
+.btn.danger {
+  color: #8f1d1d;
+}
+
+.link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--ink);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--line-strong);
+  background: #fff;
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+.color-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  flex-shrink: 0;
+}
+.bullet {
+  font-family: 'Space Grotesk', sans-serif;
+}
+.chip.active {
+  background: var(--ink);
+  color: #fff;
+}
+.tag-chip {
+  display: inline-block;
+  border: 1px solid var(--line-strong);
+  background: #fff;
+  border-radius: 4px;
+  padding: 0.1rem 0.45rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tag-chip.orange {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #fff;
+}
+.tag {
+  border: 1px solid #c9c9bf;
+  background: #f6f6f1;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+.tag.active {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+
+.field {
+  margin-bottom: 0.9rem;
+}
+.field label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+  font-size: 0.9rem;
+}
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 6px;
+  padding: 0.6rem 0.7rem;
+  font: inherit;
+  background: #fff;
+  color: inherit;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: 2px solid var(--orange);
+  outline-offset: 1px;
+  border-color: var(--orange);
+}
+.field textarea {
+  resize: vertical;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.error {
+  color: #8f1d1d;
+  background: #fdecec;
+  border: 1px solid #f3b8b8;
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+}
+.muted {
+  color: var(--muted);
+}
+.hint {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0.3rem 0 0;
+}
+
+.inline-form {
+  background: #fff;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 0.9rem;
+}
+
+/* Grid kartu ala referensi: kartu putih, border tipis, badan tengah,
+   strip statistik 2x2 di bawah dengan sel panah di kanan. */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.ref-card {
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.ref-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.8rem 0;
+}
+.ref-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0.8rem;
+  min-height: 150px;
+}
+.ref-card-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 52px;
+  border-top: 1px solid var(--line);
+  margin-top: auto;
+}
+.ref-stat {
+  padding: 0.55rem 0.7rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  min-width: 0;
+}
+.ref-stat:nth-child(2) {
+  border-right: 0;
+}
+.ref-stat b {
+  display: block;
+  font-size: 0.95rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.ref-stat span {
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.ref-stat:nth-child(3),
+.ref-stat:nth-child(4) {
+  border-bottom: 0;
+}
+.arrow-cell {
+  grid-row: 1 / span 2;
+  grid-column: 3;
+  border: 0;
+  border-left: 1px solid var(--line);
+  background: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--ink);
+}
+.arrow-cell:hover {
+  background: var(--orange);
+  color: #fff;
+}
+
+@media (max-width: 900px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 620px) {
+  .frame-page {
+    padding: 12px 8px 28px;
+  }
+  .frame {
+    border-radius: 16px;
+  }
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+}
