@@ -54,6 +54,43 @@
   --orange: #ff5c1a;
   --orange-dark: #e64e12;
   --muted: #5c5c54;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 140ms;
+  --dur-mid: 240ms;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.94) translateY(6px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes blink {
+  0%, 45% { opacity: 1; }
+  55%, 100% { opacity: 0; }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(6deg); }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+
+.anim-fade-up {
+  animation: fade-up var(--dur-mid) var(--ease-out) both;
+}
+.anim-pop {
+  animation: pop-in var(--dur-mid) var(--ease-spring) both;
 }
 
 * {
@@ -165,9 +202,19 @@ button {
   cursor: pointer;
   text-decoration: none;
   white-space: nowrap;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
 }
 .btn:hover:not(:disabled) {
   background: #ecece4;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 0 #c9c9bf;
+}
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: none;
 }
 .btn:disabled {
   opacity: 0.55;
@@ -180,6 +227,11 @@ button {
 }
 .btn.primary:hover:not(:disabled) {
   background: var(--orange-dark);
+  box-shadow: 0 2px 0 #b83c0c;
+}
+.btn.primary:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: none;
 }
 .btn.small {
   padding: 0.32rem 0.7rem;
@@ -214,6 +266,7 @@ button {
   font-weight: 500;
   font-size: 0.85rem;
   color: var(--ink);
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 .color-dot {
   width: 0.65rem;
@@ -228,6 +281,12 @@ button {
 .chip.active {
   background: var(--ink);
   color: #fff;
+}
+.chip:hover {
+  transform: translateY(-1px);
+}
+.chip:active {
+  transform: translateY(1px);
 }
 .tag-chip {
   display: inline-block;
@@ -253,11 +312,18 @@ button {
   cursor: pointer;
   font-size: 0.85rem;
   color: var(--ink);
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 .tag.active {
   background: var(--ink);
   color: #fff;
   border-color: var(--ink);
+}
+.tag:hover {
+  transform: translateY(-1px);
+}
+.tag:active {
+  transform: translateY(1px);
 }
 
 .field {
@@ -279,6 +345,7 @@ button {
   font: inherit;
   background: #fff;
   color: inherit;
+  transition: border-color var(--dur-fast) var(--ease-out), outline-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
 .field input:focus,
 .field select:focus,
@@ -414,5 +481,25 @@ button {
   }
   .card-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .btn:hover:not(:disabled),
+  .btn:active:not(:disabled),
+  .chip:hover,
+  .chip:active,
+  .tag:hover,
+  .tag:active {
+    transform: none;
+    box-shadow: none;
   }
 }
