@@ -159,6 +159,21 @@ func migrate(db *sql.DB) error {
 		CREATE INDEX IF NOT EXISTS idx_entries_user_outcome ON entries(user_id, outcome);
 		CREATE INDEX IF NOT EXISTS idx_otp_user_purpose ON otp_codes(user_id, purpose, expires_at);
 	`)
+
+	// Migrate pre-OTP schemas: add email verification columns to users if missing.
+	var hasEmailVerified int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM pragma_table_info('users') WHERE name = 'email_verified'`).Scan(&hasEmailVerified); err != nil {
+		return err
+	}
+	if hasEmailVerified == 0 {
+		if _, err := db.Exec(`ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0`); err != nil {
+			return err
+		}
+		if _, err := db.Exec(`ALTER TABLE users ADD COLUMN email_verified_at TEXT`); err != nil {
+			return err
+		}
+	}
+
 	return err
 }
 
