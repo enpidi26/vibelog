@@ -57,10 +57,13 @@ func (s *server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "internal_error", "failed to save verification code")
 		return
 	}
-	if err := SendOTPEmail(s.cfg.Email, user.Email, user.Name, code); err != nil {
-		// Log error tapi tetap lanjut - user bisa resend nanti
-		fmt.Printf("failed to send OTP email to %s: %v\n", user.Email, err)
-	}
+	// Kirim OTP email di background agar request tidak menunggu SMTP
+	go func(email, name, otp string) {
+		if err := SendOTPEmail(s.cfg.Email, email, name, otp); err != nil {
+			// Log error tapi tetap lanjut - user bisa resend nanti
+			fmt.Printf("failed to send OTP email to %s: %v\n", email, err)
+		}
+	}(user.Email, user.Name, code)
 	
 	// Return user info tanpa token - harus verify dulu
 	writeJSON(w, http.StatusCreated, map[string]any{
@@ -225,11 +228,12 @@ func (s *server) handleResendOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	if err := SendOTPEmail(s.cfg.Email, user.Email, user.Name, code); err != nil {
-		fmt.Printf("failed to send OTP email to %s: %v\n", user.Email, err)
-		writeError(w, http.StatusInternalServerError, "email_failed", "failed to send email. Try again later.")
-		return
-	}
+	// Kirim OTP email di background agar request tidak menunggu SMTP
+	go func(email, name, otp string) {
+		if err := SendOTPEmail(s.cfg.Email, email, name, otp); err != nil {
+			fmt.Printf("failed to send OTP email to %s: %v\n", email, err)
+		}
+	}(user.Email, user.Name, code)
 	
 	writeJSON(w, http.StatusOK, map[string]any{
 		"message": "A new verification code has been sent to your email.",
