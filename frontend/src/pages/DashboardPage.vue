@@ -4,31 +4,31 @@
       <div class="dash-inner">
     <header class="topbar">
       <Logo />
-      <p class="micro-label dash-crumb">Jurnal / Dashboard</p>
+      <p class="micro-label dash-crumb">Journal / Dashboard</p>
       <div class="top-actions">
         <span v-if="authUser" class="user-name">{{ authUser.name }}</span>
         <button class="btn small" type="button" :disabled="exporting" @click="exportPack('md')">
-          {{ exporting ? 'Mengekspor...' : 'Ekspor Markdown' }}
+          {{ exporting ? 'Exporting...' : 'Export Markdown' }}
         </button>
-        <button class="btn small" type="button" :disabled="exporting" @click="exportPack('json')">Ekspor JSON</button>
+        <button class="btn small" type="button" :disabled="exporting" @click="exportPack('json')">Export JSON</button>
         <button class="btn small" type="button" @click="onLogout">Sign out</button>
       </div>
     </header>
 
     <section class="dash-hero">
-      <h1 class="pixel-headline hero-title">Jurnal_</h1>
-      <p class="intro">Catat prompt yang kamu kirim, nilai hasilnya, dan ulangi yang berhasil di iterasi berikutnya.</p>
+      <h1 class="pixel-headline hero-title">Journal_</h1>
+      <p class="intro">Record the prompts you send, rate results, and iterate on what works.</p>
     </section>
 
     <StatsCards :summary="summaryQuery.data.value" :loading="summaryQuery.isPending.value" />
 
-    <section class="panel" aria-label="Proyek">
+    <section class="panel" aria-label="Projects">
       <div class="panel-head">
-        <h2>Proyek <span class="project-count">{{ String((projectsQuery.data.value ?? []).length).padStart(2, '0') }}</span></h2>
-        <button class="btn small" type="button" @click="openNewProject">Proyek baru</button>
+        <h2>Projects <span class="project-count">{{ String((projectsQuery.data.value ?? []).length).padStart(2, '0') }}</span></h2>
+        <button class="btn small" type="button" @click="openNewProject">New project</button>
       </div>
-      <p v-if="projectsQuery.isPending.value" class="muted">Memuat proyek...</p>
-      <p v-else-if="projectsQuery.isError.value" class="error" role="alert">Gagal memuat proyek. <button class="link" type="button" @click="projectsQuery.refetch()">Coba lagi</button></p>
+      <p v-if="projectsQuery.isPending.value" class="muted">Loading projects...</p>
+      <p v-else-if="projectsQuery.isError.value" class="error" role="alert">Failed to load projects. <button class="link" type="button" @click="projectsQuery.refetch()">Try again</button></p>
       <div v-else class="project-chips">
         <button
           class="chip"
@@ -36,7 +36,7 @@
           type="button"
           @click="filters.project_id = 'all'"
         >
-          Semua proyek
+          All projects
         </button>
         <button
           v-for="p in projectsQuery.data.value"
@@ -50,13 +50,13 @@
           {{ p.name }} ({{ p.entry_count }})
         </button>
         <button class="chip" :class="{ active: filters.project_id === 'none' }" type="button" @click="filters.project_id = 'none'">
-          Tanpa proyek
+          No project
         </button>
       </div>
-      <p class="hint">Catatan: menghapus proyek tidak menghapus entri jurnalnya. Entri pindah ke Tanpa proyek.</p>
+      <p class="hint">Note: deleting a project doesn't delete its journal entries. Entries move to No project.</p>
       <div v-if="selectedProject" class="row">
-        <button class="btn small" type="button" @click="openEditProject(selectedProject)">Ubah proyek ini</button>
-        <button class="btn small danger" type="button" @click="deleteProject(selectedProject)">Hapus proyek ini</button>
+        <button class="btn small" type="button" @click="openEditProject(selectedProject)">Edit this project</button>
+        <button class="btn small danger" type="button" @click="deleteProject(selectedProject)">Delete this project</button>
       </div>
       <div v-if="showProjectForm" class="anim-pop">
         <ProjectForm
@@ -70,39 +70,39 @@
       </div>
     </section>
 
-    <section class="panel" aria-label="Filter entri">
+    <section class="panel" aria-label="Filter entries">
       <div class="filters">
         <div class="field">
-          <label for="filter-q">Cari judul, prompt, catatan, atau tag</label>
-          <input id="filter-q" v-model="filters.q" type="search" placeholder="Cari judul, prompt, tag..." />
+          <label for="filter-q">Search title, prompt, notes, or tags</label>
+          <input id="filter-q" v-model="filters.q" type="search" placeholder="Search title, prompt, tags..." />
         </div>
         <div class="field">
           <label for="filter-model">Model</label>
           <select id="filter-model" v-model="filters.model">
-            <option value="">Semua model</option>
+            <option value="">All models</option>
             <option v-for="m in modelOptions" :key="m" :value="m">{{ m }}</option>
           </select>
         </div>
         <div class="field">
           <label for="filter-tool">Tool</label>
           <select id="filter-tool" v-model="filters.tool">
-            <option value="">Semua tool</option>
+            <option value="">All tools</option>
             <option v-for="t in toolOptions" :key="t" :value="t">{{ t }}</option>
           </select>
         </div>
         <div class="field">
-          <label for="filter-outcome">Hasil</label>
+          <label for="filter-outcome">Outcome</label>
           <select id="filter-outcome" v-model="filters.outcome">
-            <option value="">Semua hasil</option>
-            <option value="success">Berhasil</option>
-            <option value="partial">Sebagian</option>
-            <option value="failed">Gagal</option>
-            <option value="in_progress">Berjalan</option>
+            <option value="">All outcomes</option>
+            <option value="success">Success</option>
+            <option value="partial">Partial</option>
+            <option value="failed">Failed</option>
+            <option value="in_progress">In Progress</option>
           </select>
         </div>
       </div>
       <div v-if="summaryQuery.data.value?.top_tags.length" class="tags-row">
-        <span class="muted">Tag populer:</span>
+        <span class="muted">Popular tags:</span>
         <button
           v-for="t in summaryQuery.data.value.top_tags"
           :key="t.name"
@@ -113,22 +113,22 @@
         >
           #{{ t.name }} ({{ t.count }})
         </button>
-        <button v-if="filters.tag" class="link" type="button" @click="filters.tag = ''">Hapus filter tag</button>
+        <button v-if="filters.tag" class="link" type="button" @click="filters.tag = ''">Clear tag filter</button>
       </div>
       <div class="row">
-        <button class="btn small" type="button" @click="resetFilters">Reset filter</button>
-        <span class="muted">{{ entriesQuery.data.value?.length ?? 0 }} entri ditampilkan</span>
+        <button class="btn small" type="button" @click="resetFilters">Reset filters</button>
+        <span class="muted">{{ entriesQuery.data.value?.length ?? 0 }} entries shown</span>
       </div>
     </section>
 
-    <section aria-label="Entri jurnal">
+    <section aria-label="Journal entries">
       <div class="panel-head">
-        <h2>Entri</h2>
-        <button class="btn primary" type="button" @click="openNewEntry">Entri baru</button>
+        <h2>Entries</h2>
+        <button class="btn primary" type="button" @click="openNewEntry">New entry</button>
       </div>
 
       <div v-if="showEntryForm" class="panel form-panel anim-pop">
-        <h3 class="pixel-small">{{ editingEntry ? 'Ubah entri' : 'Entri baru' }}</h3>
+        <h3 class="pixel-small">{{ editingEntry ? 'Edit entry' : 'New entry' }}</h3>
         <EntryForm
           :initial="editingEntry"
           :projects="projectsQuery.data.value ?? []"
@@ -139,14 +139,14 @@
         />
       </div>
 
-      <p v-if="entriesQuery.isPending.value" class="muted">Memuat entri...</p>
+      <p v-if="entriesQuery.isPending.value" class="muted">Loading entries...</p>
       <p v-else-if="entriesQuery.isError.value" class="error" role="alert">
-        Gagal memuat entri. <button class="link" type="button" @click="entriesQuery.refetch()">Coba lagi</button>
+        Failed to load entries. <button class="link" type="button" @click="entriesQuery.refetch()">Try again</button>
       </p>
       <div v-else-if="(entriesQuery.data.value ?? []).length === 0" class="empty anim-fade-up">
-        <p><strong>Belum ada entri yang cocok.</strong></p>
-        <p>Buat entri pertama dengan prompt yang baru kamu kirim ke AI, lalu nilai hasilnya.</p>
-        <button class="btn primary" type="button" @click="openNewEntry">Buat entri pertama</button>
+        <p><strong>No matching entries yet.</strong></p>
+        <p>Create your first entry with a prompt you just sent to AI, then rate the result.</p>
+        <button class="btn primary" type="button" @click="openNewEntry">Create first entry</button>
       </div>
       <div v-else class="card-grid entry-grid">
         <div
@@ -168,14 +168,14 @@
       </div>
     </section>
 
-    <section class="cta-row" aria-label="Ekspor prompt pack">
+    <section class="cta-row" aria-label="Export prompt pack">
       <div class="cta-left">
-        <p class="pixel-small"><span class="bullet" aria-hidden="true">►</span> Siap mengekspor prompt pack?</p>
-        <p>Ekspor mengikuti filter yang sedang aktif di atas.</p>
+        <p class="pixel-small"><span class="bullet" aria-hidden="true">►</span> Ready to export your prompt pack?</p>
+        <p>Export follows the active filters above.</p>
       </div>
       <div class="cta-right">
-        <button class="btn primary" type="button" :disabled="exporting" @click="exportPack('md')">Ekspor Markdown</button>
-        <button class="btn" type="button" :disabled="exporting" @click="exportPack('json')">Ekspor JSON</button>
+        <button class="btn primary" type="button" :disabled="exporting" @click="exportPack('md')">Export Markdown</button>
+        <button class="btn" type="button" :disabled="exporting" @click="exportPack('json')">Export JSON</button>
       </div>
     </section>
       </div>
@@ -279,18 +279,18 @@ async function saveProject(input: ProjectInput) {
     }
     showProjectForm.value = false
   } catch (e) {
-    projectError.value = e instanceof ApiError ? e.message : 'Gagal menyimpan proyek.'
+    projectError.value = e instanceof ApiError ? e.message : 'Failed to save project.'
   } finally {
     projectSaving.value = false
   }
 }
 async function deleteProject(p: Project) {
-  if (!window.confirm(`Hapus proyek "${p.name}"? Entri jurnalnya tetap tersimpan sebagai Tanpa proyek.`)) return
+  if (!window.confirm(`Delete project "${p.name}"? Journal entries will remain saved as No project.`)) return
   try {
     await deleteProjectMutation.mutateAsync(p.id)
     filters.project_id = 'all'
   } catch (e) {
-    window.alert(e instanceof ApiError ? e.message : 'Gagal menghapus proyek.')
+    window.alert(e instanceof ApiError ? e.message : 'Failed to delete project.')
   }
 }
 
@@ -328,7 +328,7 @@ async function saveEntry(input: EntryInput) {
     showEntryForm.value = false
     editingEntry.value = null
   } catch (e) {
-    entryError.value = e instanceof ApiError ? e.message : 'Gagal menyimpan entri.'
+    entryError.value = e instanceof ApiError ? e.message : 'Failed to save entry.'
   } finally {
     entrySaving.value = false
   }
@@ -338,18 +338,18 @@ async function duplicateEntry(entry: Entry) {
   try {
     await duplicateMutation.mutateAsync(entry.id)
   } catch (e) {
-    window.alert(e instanceof ApiError ? e.message : 'Gagal membuat iterasi berikutnya.')
+    window.alert(e instanceof ApiError ? e.message : 'Failed to create next iteration.')
   } finally {
     duplicatingId.value = null
   }
 }
 async function deleteEntry(entry: Entry) {
-  if (!window.confirm(`Hapus entri "${entry.title}"? Tindakan ini tidak bisa dibatalkan.`)) return
+  if (!window.confirm(`Delete entry "${entry.title}"? This action cannot be undone.`)) return
   deletingId.value = entry.id
   try {
     await deleteMutation.mutateAsync(entry.id)
   } catch (e) {
-    window.alert(e instanceof ApiError ? e.message : 'Gagal menghapus entri.')
+    window.alert(e instanceof ApiError ? e.message : 'Failed to delete entry.')
   } finally {
     deletingId.value = null
   }
@@ -363,7 +363,7 @@ async function exportPack(format: 'md' | 'json') {
     const { blob, filename } = await api.exportEntries(effectiveFilters.value, format)
     downloadBlob(blob, filename)
   } catch (e) {
-    window.alert(e instanceof ApiError ? e.message : 'Gagal mengekspor entri.')
+    window.alert(e instanceof ApiError ? e.message : 'Failed to export entries.')
   } finally {
     exporting.value = false
   }
