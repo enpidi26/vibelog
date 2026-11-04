@@ -12,6 +12,7 @@
       <p v-if="error" class="error" role="alert">{{ error }}</p>
       <button class="btn primary block" type="submit" :disabled="loading">{{ loading ? 'Signing in...' : 'Sign in' }}</button>
       <a class="btn block github-btn" href="/api/auth/github" rel="noopener">
+        <GithubIcon />
         Continue with GitHub
       </a>
     </form>
@@ -25,6 +26,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AuthShell from '../components/AuthShell.vue'
+import GithubIcon from '../components/GithubIcon.vue'
 import { useAuth } from '../composables/useAuth'
 import { ApiError } from '../types'
 

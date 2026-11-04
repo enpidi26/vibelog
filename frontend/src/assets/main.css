@@ -250,6 +250,13 @@ a.btn.github-btn {
   color: #fff;
   border-color: #24292f;
   text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.github-icon {
+  flex: 0 0 auto;
 }
 a.btn.github-btn:hover {
   background: #32383f;
