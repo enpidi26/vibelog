@@ -31,7 +31,7 @@ func main() {
 	}
 
 	go func() {
-		log.Printf("vibelog-api berjalan di http://%s (env=%s)", cfg.Addr(), cfg.Env)
+		log.Printf("vibelog-api running at http://%s (env=%s)", cfg.Addr(), cfg.Env)
 		if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("server failed: %v", err)
 		}
@@ -40,7 +40,7 @@ func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 	<-stop
-	log.Println("mematikan server...")
+	log.Println("shutting down server...")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := httpServer.Shutdown(ctx); err != nil {

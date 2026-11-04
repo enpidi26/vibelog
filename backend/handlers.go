@@ -42,6 +42,7 @@ func (s *server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
+		fmt.Printf("register: create user failed: %v\n", err)
 		writeError(w, http.StatusInternalServerError, "internal_error", "failed to create account")
 		return
 	}
