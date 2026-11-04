@@ -13,11 +13,6 @@ export interface AuthResponse {
   user: User
 }
 
-export interface RegisterResponse {
-  user: User
-  message: string
-}
-
 export interface Project {
   id: number
   name: string

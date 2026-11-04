@@ -11,6 +11,9 @@
       </div>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
       <button class="btn primary block" type="submit" :disabled="loading">{{ loading ? 'Signing in...' : 'Sign in' }}</button>
+      <a class="btn block github-btn" href="/api/auth/github" rel="noopener">
+        Continue with GitHub
+      </a>
     </form>
     <template #foot>
       Don't have an account? <RouterLink to="/register">Sign up here</RouterLink>.
@@ -39,15 +42,7 @@ async function onSubmit() {
     await login(email.value.trim(), password.value)
     await router.push('/app')
   } catch (e) {
-    if (e instanceof ApiError && e.code === 'email_not_verified') {
-      // Redirect ke halaman verifikasi
-      error.value = e.message
-      setTimeout(() => {
-        router.push(`/verify-otp?email=${encodeURIComponent(email.value.trim())}`)
-      }, 2000)
-    } else {
-      error.value = e instanceof ApiError ? e.message : 'Failed to sign in. Please try again.'
-    }
+    error.value = e instanceof ApiError ? e.message : 'Failed to sign in. Please try again.'
   } finally {
     loading.value = false
   }

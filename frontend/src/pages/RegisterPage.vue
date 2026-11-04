@@ -15,6 +15,9 @@
       </div>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
       <button class="btn primary block" type="submit" :disabled="loading">{{ loading ? 'Creating account...' : 'Sign up' }}</button>
+      <a class="btn block github-btn" href="/api/auth/github" rel="noopener">
+        Continue with GitHub
+      </a>
     </form>
     <template #foot>
       Already have an account? <RouterLink to="/login">Sign in here</RouterLink>.
@@ -42,8 +45,7 @@ async function onSubmit() {
   loading.value = true
   try {
     await register(name.value.trim(), email.value.trim(), password.value)
-    // Redirect ke halaman verifikasi OTP
-    await router.push(`/verify-otp?email=${encodeURIComponent(email.value.trim())}`)
+    await router.push('/app')
   } catch (e) {
     error.value = e instanceof ApiError ? e.message : 'Failed to create account. Please try again.'
   } finally {

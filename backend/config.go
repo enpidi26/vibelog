@@ -11,16 +11,17 @@ import (
 // Config dibaca dari environment. Nilai default hanya aman untuk development
 // lokal; mode production menolak secret default (lihat Validate).
 type Config struct {
-	Env           string
-	Host          string
-	Port          string
-	DatabasePath  string
-	JWTSecret     string
-	JWTExpiryHrs  int
-	FrontendURL   string
-	AuthRateLimit int
-	APIRateLimit  int
-	Email         EmailConfig
+	Env               string
+	Host              string
+	Port              string
+	DatabasePath      string
+	JWTSecret         string
+	JWTExpiryHrs      int
+	FrontendURL       string
+	AuthRateLimit     int
+	APIRateLimit      int
+	GitHubClientID    string
+	GitHubClientSecret string
 }
 
 const devJWTSecret = "dev-only-secret-change-me-in-production"
@@ -39,16 +40,17 @@ func LoadConfig() Config {
 		expiry = 24
 	}
 	return Config{
-		Env:           envOr("APP_ENV", "development"),
-		Host:          envOr("HOST", "127.0.0.1"),
-		Port:          envOr("PORT", "8080"),
-		DatabasePath:  envOr("DATABASE_PATH", "data/vibelog.db"),
-		JWTSecret:     os.Getenv("JWT_SECRET"),
-		JWTExpiryHrs:  expiry,
-		FrontendURL:   envOr("FRONTEND_URL", "http://127.0.0.1:4173"),
-		AuthRateLimit: 20,
-		APIRateLimit:  300,
-		Email:         LoadEmailConfig(),
+		Env:                envOr("APP_ENV", "development"),
+		Host:               envOr("HOST", "127.0.0.1"),
+		Port:               envOr("PORT", "8080"),
+		DatabasePath:       envOr("DATABASE_PATH", "data/vibelog.db"),
+		JWTSecret:          os.Getenv("JWT_SECRET"),
+		JWTExpiryHrs:       expiry,
+		FrontendURL:        envOr("FRONTEND_URL", "http://127.0.0.1:4173"),
+		AuthRateLimit:      20,
+		APIRateLimit:       300,
+		GitHubClientID:     strings.TrimSpace(os.Getenv("GITHUB_CLIENT_ID")),
+		GitHubClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
 	}
 }
 

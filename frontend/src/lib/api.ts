@@ -1,4 +1,4 @@
-import { ApiError, type AuthResponse, type Entry, type EntryFilters, type EntryInput, type Project, type ProjectInput, type RegisterResponse, type Summary, type User } from '../types'
+import { ApiError, type AuthResponse, type Entry, type EntryFilters, type EntryInput, type Project, type ProjectInput, type Summary, type User } from '../types'
 
 export const TOKEN_KEY = 'vibelog_token'
 
@@ -29,7 +29,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   try {
     res = await fetch(path, { ...init, headers })
   } catch {
-    throw new ApiError('Tidak bisa terhubung ke server. Periksa koneksi, lalu coba lagi.', 'network', 0)
+    throw new ApiError('Cannot connect to the server. Check your connection and try again.', 'network', 0)
   }
 
   let data: unknown = null
@@ -66,8 +66,8 @@ function entryQuery(filters: EntryFilters): string {
 }
 
 export const api = {
-  register(name: string, email: string, password: string): Promise<RegisterResponse> {
-    return request<RegisterResponse>('/api/auth/register', {
+  register(name: string, email: string, password: string): Promise<AuthResponse> {
+    return request<AuthResponse>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify({ name, email, password }),
     })
@@ -76,18 +76,6 @@ export const api = {
     return request<AuthResponse>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
-    })
-  },
-  verifyOTP(email: string, code: string): Promise<AuthResponse> {
-    return request<AuthResponse>('/api/auth/verify-otp', {
-      method: 'POST',
-      body: JSON.stringify({ email, code }),
-    })
-  },
-  resendOTP(email: string): Promise<{ message: string }> {
-    return request<{ message: string }>('/api/auth/resend-otp', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
     })
   },
   me(): Promise<User> {

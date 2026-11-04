@@ -36,15 +36,10 @@ export function useAuth() {
 
   async function register(name: string, email: string, password: string): Promise<User> {
     const res = await api.register(name, email, password)
-    // Register tidak langsung return token - harus verify email dulu
-    return res.user
-  }
-
-  async function verifyOTP(email: string, code: string): Promise<void> {
-    const res = await api.verifyOTP(email, code)
     setToken(res.token)
     user.value = res.user
     restored.value = true
+    return res.user
   }
 
   function logout(): void {
@@ -53,5 +48,5 @@ export function useAuth() {
     restored.value = true
   }
 
-  return { user, restoring, restored, isAuthenticated, restore, login, register, verifyOTP, logout }
+  return { user, restoring, restored, isAuthenticated, restore, login, register, logout }
 }

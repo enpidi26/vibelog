@@ -244,6 +244,16 @@ button {
 .btn.block {
   width: 100%;
 }
+a.btn.github-btn {
+  margin-top: 0.6rem;
+  background: #24292f;
+  color: #fff;
+  border-color: #24292f;
+  text-align: center;
+}
+a.btn.github-btn:hover {
+  background: #32383f;
+}
 .btn.danger {
   color: #8f1d1d;
 }

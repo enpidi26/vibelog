@@ -6,13 +6,13 @@ import LandingPage from '../pages/LandingPage.vue'
 import LoginPage from '../pages/LoginPage.vue'
 import NotFoundPage from '../pages/NotFoundPage.vue'
 import RegisterPage from '../pages/RegisterPage.vue'
-import VerifyOTPPage from '../pages/VerifyOTPPage.vue'
+import OAuthCallbackPage from '../pages/OAuthCallbackPage.vue'
 
 const routes: RouteRecordRaw[] = [
   { path: '/', component: LandingPage, meta: { guestOnly: true } },
   { path: '/login', component: LoginPage, meta: { guestOnly: true } },
   { path: '/register', component: RegisterPage, meta: { guestOnly: true } },
-  { path: '/verify-otp', component: VerifyOTPPage, meta: { guestOnly: true } },
+  { path: '/auth/github/callback', component: OAuthCallbackPage },
   { path: '/app', component: DashboardPage, meta: { requiresAuth: true } },
   { path: '/:pathMatch(.*)*', component: NotFoundPage },
 ]

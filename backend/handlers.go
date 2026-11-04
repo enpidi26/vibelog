@@ -46,29 +46,16 @@ func (s *server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "internal_error", "failed to create account")
 		return
 	}
-	
-	// Generate dan kirim OTP
-	code, err := GenerateOTP()
+
+	token, err := IssueToken(s.cfg.EffectiveJWTSecret(), user.ID, user.Email, user.Name, s.cfg.JWTExpiryHrs)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "failed to generate verification code")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to create token")
 		return
 	}
-	if err := CreateOTP(s.db, user.ID, code, "email_verification", 15); err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "failed to save verification code")
-		return
-	}
-	// Kirim OTP email di background agar request tidak menunggu SMTP
-	go func(email, name, otp string) {
-		if err := SendOTPEmail(s.cfg.Email, email, name, otp); err != nil {
-			// Log error tapi tetap lanjut - user bisa resend nanti
-			fmt.Printf("failed to send OTP email to %s: %v\n", email, err)
-		}
-	}(user.Email, user.Name, code)
-	
-	// Return user info tanpa token - harus verify dulu
+
 	writeJSON(w, http.StatusCreated, map[string]any{
-		"user": publicUser(user),
-		"message": "Account created. Please check your email for the verification code.",
+		"token": token,
+		"user":  publicUser(user),
 	})
 }
 
@@ -131,113 +118,6 @@ func (s *server) handleMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, publicUser(user))
-}
-
-func (s *server) handleVerifyOTP(w http.ResponseWriter, r *http.Request) {
-	var in struct {
-		Email string `json:"email"`
-		Code  string `json:"code"`
-	}
-	if !decodeJSON(w, r, &in) {
-		return
-	}
-	if strings.TrimSpace(in.Email) == "" || strings.TrimSpace(in.Code) == "" {
-		writeError(w, http.StatusBadRequest, "validation_error", "email and OTP code are required")
-		return
-	}
-	
-	user, err := GetUserByEmail(s.db, in.Email)
-	if errors.Is(err, ErrNotFound) {
-		writeError(w, http.StatusNotFound, "not_found", "account not found")
-		return
-	}
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "failed to load account")
-		return
-	}
-	
-	if user.EmailVerified {
-		writeError(w, http.StatusBadRequest, "already_verified", "email already verified")
-		return
-	}
-	
-	if err := VerifyOTP(s.db, user.ID, strings.TrimSpace(in.Code), "email_verification"); err != nil {
-		if errors.Is(err, ErrInvalidOTP) {
-			writeError(w, http.StatusBadRequest, "invalid_otp", "invalid or expired OTP code")
-			return
-		}
-		writeError(w, http.StatusInternalServerError, "internal_error", "failed to verify code")
-		return
-	}
-	
-	if err := MarkEmailVerified(s.db, user.ID); err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "failed to verify email")
-		return
-	}
-	
-	// Refresh user data dan issue token
-	user, _ = GetUserByID(s.db, user.ID)
-	token, err := IssueToken(s.cfg.EffectiveJWTSecret(), user.ID, user.Email, user.Name, s.cfg.JWTExpiryHrs)
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "failed to create token")
-		return
-	}
-	
-	writeJSON(w, http.StatusOK, map[string]any{
-		"token": token,
-		"user":  publicUser(user),
-		"message": "Email verified successfully!",
-	})
-}
-
-func (s *server) handleResendOTP(w http.ResponseWriter, r *http.Request) {
-	var in struct {
-		Email string `json:"email"`
-	}
-	if !decodeJSON(w, r, &in) {
-		return
-	}
-	if strings.TrimSpace(in.Email) == "" {
-		writeError(w, http.StatusBadRequest, "validation_error", "email harus diisi")
-		return
-	}
-	
-	user, err := GetUserByEmail(s.db, in.Email)
-	if errors.Is(err, ErrNotFound) {
-		writeError(w, http.StatusNotFound, "not_found", "account not found")
-		return
-	}
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "failed to load account")
-		return
-	}
-	
-	if user.EmailVerified {
-		writeError(w, http.StatusBadRequest, "already_verified", "email already verified")
-		return
-	}
-	
-	code, err := GenerateOTP()
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "failed to generate verification code")
-		return
-	}
-	
-	if err := CreateOTP(s.db, user.ID, code, "email_verification", 15); err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "failed to save verification code")
-		return
-	}
-	
-	// Kirim OTP email di background agar request tidak menunggu SMTP
-	go func(email, name, otp string) {
-		if err := SendOTPEmail(s.cfg.Email, email, name, otp); err != nil {
-			fmt.Printf("failed to send OTP email to %s: %v\n", email, err)
-		}
-	}(user.Email, user.Name, code)
-	
-	writeJSON(w, http.StatusOK, map[string]any{
-		"message": "A new verification code has been sent to your email.",
-	})
 }
 
 // ---- Projects ----

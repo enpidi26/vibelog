@@ -64,8 +64,8 @@ func (s *server) routes() http.Handler {
 
 	mux.Handle("POST /api/auth/register", rateLimit(s.authLimit, http.HandlerFunc(s.handleRegister)))
 	mux.Handle("POST /api/auth/login", rateLimit(s.authLimit, http.HandlerFunc(s.handleLogin)))
-	mux.Handle("POST /api/auth/verify-otp", rateLimit(s.authLimit, http.HandlerFunc(s.handleVerifyOTP)))
-	mux.Handle("POST /api/auth/resend-otp", rateLimit(s.authLimit, http.HandlerFunc(s.handleResendOTP)))
+	mux.Handle("GET /api/auth/github", rateLimit(s.authLimit, http.HandlerFunc(s.handleGithubLogin)))
+	mux.Handle("GET /api/auth/github/callback", http.HandlerFunc(s.handleGithubCallback))
 
 	protected := func(h http.HandlerFunc) http.Handler {
 		return rateLimit(s.apiLimit, authRequired(s.cfg, h))
