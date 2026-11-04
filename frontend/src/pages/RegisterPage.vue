@@ -1,8 +1,8 @@
 <template>
-  <AuthShell title="Buat akun VibeLog" subtitle="Satu akun untuk semua proyek dan jurnal prompt kamu.">
+  <AuthShell title="Create VibeLog account" subtitle="One account for all your projects and prompt journals.">
     <form @submit.prevent="onSubmit">
       <div class="field">
-        <label for="register-name">Nama</label>
+        <label for="register-name">Name</label>
         <input id="register-name" v-model="name" type="text" maxlength="80" required autocomplete="name" />
       </div>
       <div class="field">
@@ -10,14 +10,14 @@
         <input id="register-email" v-model="email" type="email" required autocomplete="email" />
       </div>
       <div class="field">
-        <label for="register-password">Password (minimal 8 karakter)</label>
+        <label for="register-password">Password (minimum 8 characters)</label>
         <input id="register-password" v-model="password" type="password" required minlength="8" autocomplete="new-password" />
       </div>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
-      <button class="btn primary block" type="submit" :disabled="loading">{{ loading ? 'Membuat akun...' : 'Daftar' }}</button>
+      <button class="btn primary block" type="submit" :disabled="loading">{{ loading ? 'Creating account...' : 'Sign up' }}</button>
     </form>
     <template #foot>
-      Sudah punya akun? <RouterLink to="/login">Masuk di sini</RouterLink>.
+      Already have an account? <RouterLink to="/login">Sign in here</RouterLink>.
     </template>
   </AuthShell>
 </template>
@@ -45,7 +45,7 @@ async function onSubmit() {
     // Redirect ke halaman verifikasi OTP
     await router.push(`/verify-otp?email=${encodeURIComponent(email.value.trim())}`)
   } catch (e) {
-    error.value = e instanceof ApiError ? e.message : 'Gagal membuat akun. Coba lagi.'
+    error.value = e instanceof ApiError ? e.message : 'Failed to create account. Please try again.'
   } finally {
     loading.value = false
   }

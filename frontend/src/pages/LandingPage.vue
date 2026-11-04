@@ -3,13 +3,13 @@
     <div class="frame">
       <header class="topbar">
         <Logo />
-        <nav class="center-nav" aria-label="Navigasi">
-          <a href="#fitur">Fitur</a>
-          <a href="#mulai">Mulai</a>
+        <nav class="center-nav" aria-label="Navigation">
+          <a href="#features">Features</a>
+          <a href="#start">Get Started</a>
         </nav>
-        <nav class="right-nav" aria-label="Akun">
-          <RouterLink to="/login" class="nav-link">Masuk</RouterLink>
-          <RouterLink to="/register" class="btn primary small">Daftar gratis</RouterLink>
+        <nav class="right-nav" aria-label="Account">
+          <RouterLink to="/login" class="nav-link">Sign in</RouterLink>
+          <RouterLink to="/register" class="btn primary small">Sign up free</RouterLink>
         </nav>
       </header>
 
@@ -18,34 +18,34 @@
           <h1 class="pixel-headline hero-title">Vibe_Log</h1>
           <div class="hero-grid anim-fade-up" style="animation-delay: 80ms">
             <div class="hero-cell intro-cell">
-              <p><span class="bullet" aria-hidden="true">►</span> Catat prompt, nilai hasilnya, dan ulangi yang berhasil di iterasi berikutnya.</p>
+              <p><span class="bullet" aria-hidden="true">►</span> Record prompts, rate results, and iterate on what works.</p>
             </div>
             <div class="hero-cell deco-cell">
               <span class="plus-motif pulse-motif" aria-hidden="true">+</span>
               <span class="micro-label">Prompt Pack</span>
             </div>
             <div class="hero-cell featured-cell">
-              <span class="tag-chip">Unggulan</span>
-              <h2>Prompt pack siap tempel</h2>
-              <p>Prompt yang berhasil bisa diekspor dan ditempel lagi ke AI agent atau editor, tanpa menulis ulang dari riwayat chat.</p>
+              <span class="tag-chip">Featured</span>
+              <h2>Ready-to-paste prompt packs</h2>
+              <p>Successful prompts can be exported and pasted into AI agents or editors, without rewriting from chat history.</p>
               <div class="mini-stats">
-                <div><b>1</b><span>Klik iterasi</span></div>
-                <div><b>2</b><span>Format ekspor</span></div>
-                <div><b>5</b><span>Rating maks</span></div>
-                <div><b>10</b><span>Tag maks</span></div>
+                <div><b>1</b><span>Click iteration</span></div>
+                <div><b>2</b><span>Export formats</span></div>
+                <div><b>5</b><span>Max rating</span></div>
+                <div><b>10</b><span>Max tags</span></div>
               </div>
             </div>
           </div>
         </section>
 
-        <section class="count-row" id="fitur">
+        <section class="count-row" id="features">
           <div>
-            <p class="micro-label">Fitur</p>
+            <p class="micro-label">Features</p>
             <p class="pixel-small count">06</p>
           </div>
         </section>
 
-        <section class="card-grid" aria-label="Fitur VibeLog">
+        <section class="card-grid" aria-label="VibeLog Features">
           <article v-for="(card, i) in cards" :key="card.title" class="ref-card card-anim" :style="{ animationDelay: (i * 70) + 'ms' }">
             <div class="ref-card-top">
               <span class="tag-chip">{{ card.tag }}</span>
@@ -60,25 +60,25 @@
               <div class="ref-stat"><b>{{ card.stats[1].value }}</b><span>{{ card.stats[1].label }}</span></div>
               <div class="ref-stat"><b>{{ card.stats[2].value }}</b><span>{{ card.stats[2].label }}</span></div>
               <div class="ref-stat"><b>{{ card.stats[3].value }}</b><span>{{ card.stats[3].label }}</span></div>
-              <RouterLink to="/register" class="arrow-cell arrow-link" aria-label="Coba fitur ini">→</RouterLink>
+              <RouterLink to="/register" class="arrow-cell arrow-link" aria-label="Try this feature">→</RouterLink>
             </div>
           </article>
         </section>
 
-        <section class="cta-row" id="mulai">
+        <section class="cta-row" id="start">
           <div class="cta-left">
-            <p class="pixel-small"><span class="bullet" aria-hidden="true">►</span> Siap mencatat prompt pertamamu?</p>
-            <p>Daftar, buat proyek, dan simpan prompt yang baru saja kamu kirim ke AI.</p>
+            <p class="pixel-small"><span class="bullet" aria-hidden="true">►</span> Ready to record your first prompt?</p>
+            <p>Sign up, create projects, and save prompts you just sent to AI.</p>
           </div>
           <div class="cta-right">
-            <RouterLink to="/register" class="btn primary">Mulai jurnal saya</RouterLink>
-            <RouterLink to="/login" class="btn">Saya sudah punya akun</RouterLink>
+            <RouterLink to="/register" class="btn primary">Start my journal</RouterLink>
+            <RouterLink to="/login" class="btn">I already have an account</RouterLink>
           </div>
         </section>
       </main>
 
       <footer class="frame-foot">
-        <p class="micro-label">© 2026 VibeLog. Semua hak dilindungi.</p>
+        <p class="micro-label">© 2026 VibeLog. All rights reserved.</p>
       </footer>
     </div>
   </div>

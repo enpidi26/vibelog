@@ -1,12 +1,12 @@
 <template>
-  <AuthShell title="Verifikasi Email" subtitle="Masukkan kode 6 digit yang sudah dikirim ke email kamu.">
+  <AuthShell title="Verify Email" subtitle="Enter the 6-digit code sent to your email.">
     <form @submit.prevent="onSubmit">
       <div class="field">
         <label for="verify-email">Email</label>
         <input id="verify-email" v-model="email" type="email" required autocomplete="email" readonly />
       </div>
       <div class="field">
-        <label for="verify-code">Kode Verifikasi</label>
+        <label for="verify-code">Verification Code</label>
         <input 
           id="verify-code" 
           v-model="code" 
@@ -18,24 +18,24 @@
           autocomplete="one-time-code"
           inputmode="numeric"
         />
-        <small>Cek inbox atau folder spam email kamu.</small>
+        <small>Check your inbox or spam folder.</small>
       </div>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
       <p v-if="success" class="success" role="alert">{{ success }}</p>
       <button class="btn primary block" type="submit" :disabled="loading || code.length !== 6">
-        {{ loading ? 'Memverifikasi...' : 'Verifikasi' }}
+        {{ loading ? 'Verifying...' : 'Verify' }}
       </button>
     </form>
     <template #foot>
       <div style="text-align: center">
-        Belum terima kode? 
+        Didn't receive code? 
         <button 
           type="button" 
           @click="onResend" 
           :disabled="resending || resendCooldown > 0"
           style="background: none; border: none; color: var(--primary); cursor: pointer; text-decoration: underline; padding: 0"
         >
-          {{ resendCooldown > 0 ? `Kirim ulang (${resendCooldown}s)` : 'Kirim ulang' }}
+          {{ resendCooldown > 0 ? `Resend (${resendCooldown}s)` : 'Resend' }}
         </button>
       </div>
     </template>
@@ -78,7 +78,7 @@ onUnmounted(() => {
 
 async function onSubmit() {
   if (code.value.length !== 6) {
-    error.value = 'Kode harus 6 digit'
+    error.value = 'Code must be 6 digits'
     return
   }
   
@@ -90,7 +90,7 @@ async function onSubmit() {
     await verifyOTP(email.value.trim(), code.value.trim())
     await router.push('/app')
   } catch (e) {
-    error.value = e instanceof ApiError ? e.message : 'Gagal memverifikasi. Coba lagi.'
+    error.value = e instanceof ApiError ? e.message : 'Failed to verify. Please try again.'
   } finally {
     loading.value = false
   }
@@ -105,7 +105,7 @@ async function onResend() {
   
   try {
     await api.resendOTP(email.value.trim())
-    success.value = 'Kode verifikasi baru telah dikirim ke email kamu!'
+    success.value = 'A new verification code has been sent to your email!'
     
     // Cooldown 60 detik
     resendCooldown.value = 60
@@ -116,7 +116,7 @@ async function onResend() {
       }
     }, 1000)
   } catch (e) {
-    error.value = e instanceof ApiError ? e.message : 'Gagal mengirim ulang kode. Coba lagi.'
+    error.value = e instanceof ApiError ? e.message : 'Failed to resend code. Please try again.'
   } finally {
     resending.value = false
   }

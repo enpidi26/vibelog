@@ -1,5 +1,5 @@
 <template>
-  <AuthShell title="Masuk ke VibeLog" subtitle="Lanjutkan jurnal prompt kamu.">
+  <AuthShell title="Sign in to VibeLog" subtitle="Continue your prompt journal.">
     <form @submit.prevent="onSubmit">
       <div class="field">
         <label for="login-email">Email</label>
@@ -10,10 +10,10 @@
         <input id="login-password" v-model="password" type="password" required autocomplete="current-password" />
       </div>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
-      <button class="btn primary block" type="submit" :disabled="loading">{{ loading ? 'Masuk...' : 'Masuk' }}</button>
+      <button class="btn primary block" type="submit" :disabled="loading">{{ loading ? 'Signing in...' : 'Sign in' }}</button>
     </form>
     <template #foot>
-      Belum punya akun? <RouterLink to="/register">Daftar di sini</RouterLink>.
+      Don't have an account? <RouterLink to="/register">Sign up here</RouterLink>.
     </template>
   </AuthShell>
 </template>
@@ -46,7 +46,7 @@ async function onSubmit() {
         router.push(`/verify-otp?email=${encodeURIComponent(email.value.trim())}`)
       }, 2000)
     } else {
-      error.value = e instanceof ApiError ? e.message : 'Gagal masuk. Coba lagi.'
+      error.value = e instanceof ApiError ? e.message : 'Failed to sign in. Please try again.'
     }
   } finally {
     loading.value = false

@@ -11,7 +11,7 @@
           {{ exporting ? 'Mengekspor...' : 'Ekspor Markdown' }}
         </button>
         <button class="btn small" type="button" :disabled="exporting" @click="exportPack('json')">Ekspor JSON</button>
-        <button class="btn small" type="button" @click="onLogout">Keluar</button>
+        <button class="btn small" type="button" @click="onLogout">Sign out</button>
       </div>
     </header>
 
