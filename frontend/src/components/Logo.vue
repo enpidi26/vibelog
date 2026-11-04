@@ -1,5 +1,5 @@
 <template>
-  <RouterLink to="/" class="logo" aria-label="VibeLog, kembali ke beranda">
+  <RouterLink to="/" class="logo" aria-label="VibeLog, back to home">
     <span class="logo-mark" aria-hidden="true">V</span>
   </RouterLink>
 </template>

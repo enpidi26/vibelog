@@ -1,27 +1,27 @@
 <template>
-  <section v-if="summary" class="stats-strip" aria-label="Ringkasan jurnal">
+  <section v-if="summary" class="stats-strip" aria-label="Journal summary">
     <div class="stat-cell">
       <span class="stat-num">{{ total }}</span>
-      <span class="stat-label">Total entri</span>
+      <span class="stat-label">Total entries</span>
     </div>
     <div class="stat-cell">
       <span class="stat-num">{{ success }}</span>
-      <span class="stat-label">Berhasil</span>
+      <span class="stat-label">Success</span>
     </div>
     <div class="stat-cell">
       <span class="stat-num">{{ partial }}</span>
-      <span class="stat-label">Sebagian</span>
+      <span class="stat-label">Partial</span>
     </div>
     <div class="stat-cell">
       <span class="stat-num">{{ failed }}</span>
-      <span class="stat-label">Gagal</span>
+      <span class="stat-label">Failed</span>
     </div>
     <div class="stat-cell">
-      <span class="stat-num">{{ summary.average_rating === null ? 'Belum ada' : summary.average_rating.toFixed(1) + ' / 5' }}</span>
-      <span class="stat-label">Rata-rata rating ({{ summary.rated_count }} dinilai)</span>
+      <span class="stat-num">{{ summary.average_rating === null ? 'None yet' : summary.average_rating.toFixed(1) + ' / 5' }}</span>
+      <span class="stat-label">Avg rating ({{ summary.rated_count }} rated)</span>
     </div>
   </section>
-  <p v-else-if="loading" class="muted">Memuat ringkasan...</p>
+  <p v-else-if="loading" class="muted">Loading summary...</p>
 </template>
 
 <script setup lang="ts">

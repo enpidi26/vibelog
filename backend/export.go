@@ -12,13 +12,13 @@ import (
 func BuildMarkdown(entries []Entry) string {
 	var b strings.Builder
 	b.WriteString("# VibeLog Prompt Pack\n\n")
-	b.WriteString(fmt.Sprintf("Diekspor %s. %d entri.\n\n", time.Now().Format("2006-01-02"), len(entries)))
+	b.WriteString(fmt.Sprintf("Exported %s. %d entries.\n\n", time.Now().Format("2006-01-02"), len(entries)))
 	groups := map[string][]Entry{}
 	order := []string{}
 	for _, e := range entries {
 		name := e.ProjectName
 		if name == "" {
-			name = "Tanpa proyek"
+			name = "No project"
 		}
 		if _, ok := groups[name]; !ok {
 			order = append(order, name)

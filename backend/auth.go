@@ -58,7 +58,7 @@ func ParseToken(secret, tokenString string) (userID int64, email, name string, e
 	}
 	c, ok := token.Claims.(*claims)
 	if !ok || !token.Valid || c.UserID <= 0 {
-		return 0, "", "", errors.New("token tidak valid")
+		return 0, "", "", errors.New("invalid token")
 	}
 	return c.UserID, c.Email, c.Name, nil
 }

@@ -15,11 +15,11 @@ import (
 func main() {
 	cfg := LoadConfig()
 	if err := cfg.Validate(); err != nil {
-		log.Fatalf("konfigurasi tidak valid: %v", err)
+		log.Fatalf("invalid configuration: %v", err)
 	}
 	db, err := OpenDB(cfg.DatabasePath)
 	if err != nil {
-		log.Fatalf("gagal membuka database: %v", err)
+		log.Fatalf("failed to open database: %v", err)
 	}
 	defer db.Close()
 
@@ -33,7 +33,7 @@ func main() {
 	go func() {
 		log.Printf("vibelog-api berjalan di http://%s (env=%s)", cfg.Addr(), cfg.Env)
 		if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalf("server gagal: %v", err)
+			log.Fatalf("server failed: %v", err)
 		}
 	}()
 
@@ -85,7 +85,7 @@ func (s *server) routes() http.Handler {
 	mux.Handle("POST /api/entries/{id}/duplicate", protected(s.handleDuplicateEntry))
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		writeError(w, http.StatusNotFound, "not_found", "rute tidak ditemukan")
+		writeError(w, http.StatusNotFound, "not_found", "route not found")
 	})
 
 	handler := securityHeaders(cors(s.cfg, mux))

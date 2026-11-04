@@ -36,19 +36,19 @@ func SendOTPEmail(cfg EmailConfig, toEmail, toName, code string) error {
 		return nil
 	}
 
-	subject := "Kode Verifikasi VibeLog"
-	body := fmt.Sprintf(`Halo %s,
+	subject := "VibeLog Verification Code"
+	body := fmt.Sprintf(`Hi %s,
 
-Terima kasih telah mendaftar di VibeLog!
+Thanks for signing up for VibeLog!
 
-Kode verifikasi kamu adalah: %s
+Your verification code is: %s
 
-Kode ini berlaku selama 15 menit. Jangan bagikan kode ini kepada siapapun.
+This code is valid for 15 minutes. Do not share it with anyone.
 
-Jika kamu tidak merasa mendaftar di VibeLog, abaikan email ini.
+If you didn't sign up for VibeLog, you can safely ignore this email.
 
-Salam,
-Tim VibeLog`, toName, code)
+Best,
+The VibeLog Team`, toName, code)
 
 	from := cfg.FromEmail
 	if cfg.FromName != "" {

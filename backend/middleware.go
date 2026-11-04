@@ -38,16 +38,16 @@ func decodeJSON(w http.ResponseWriter, r *http.Request, dst any) bool {
 		var maxErr *http.MaxBytesError
 		switch {
 		case errors.As(err, &maxErr):
-			writeError(w, http.StatusRequestEntityTooLarge, "body_too_large", "body request terlalu besar")
+			writeError(w, http.StatusRequestEntityTooLarge, "body_too_large", "request body too large")
 		case errors.Is(err, io.EOF):
-			writeError(w, http.StatusBadRequest, "empty_body", "body request kosong")
+			writeError(w, http.StatusBadRequest, "empty_body", "request body is empty")
 		default:
-			writeError(w, http.StatusBadRequest, "invalid_json", "body JSON tidak valid")
+			writeError(w, http.StatusBadRequest, "invalid_json", "invalid JSON body")
 		}
 		return false
 	}
 	if dec.More() {
-		writeError(w, http.StatusBadRequest, "invalid_json", "body JSON harus satu objek")
+		writeError(w, http.StatusBadRequest, "invalid_json", "JSON body must be a single object")
 		return false
 	}
 	return true
@@ -70,12 +70,12 @@ func authRequired(cfg Config, next http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		h := r.Header.Get("Authorization")
 		if !strings.HasPrefix(h, "Bearer ") {
-			writeError(w, http.StatusUnauthorized, "unauthorized", "token tidak ada")
+			writeError(w, http.StatusUnauthorized, "unauthorized", "token missing")
 			return
 		}
 		uid, _, _, err := ParseToken(cfg.EffectiveJWTSecret(), strings.TrimPrefix(h, "Bearer "))
 		if err != nil {
-			writeError(w, http.StatusUnauthorized, "unauthorized", "token tidak valid atau kedaluwarsa")
+			writeError(w, http.StatusUnauthorized, "unauthorized", "invalid or expired token")
 			return
 		}
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), userIDKey, uid)))
@@ -116,7 +116,7 @@ func recoverer(next http.Handler) http.Handler {
 		defer func() {
 			if rec := recover(); rec != nil {
 				log.Printf("panic: %v", rec)
-				writeError(w, http.StatusInternalServerError, "internal_error", "terjadi kesalahan di server")
+				writeError(w, http.StatusInternalServerError, "internal_error", "internal server error")
 			}
 		}()
 		next.ServeHTTP(w, r)

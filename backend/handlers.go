@@ -33,38 +33,38 @@ func (s *server) handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 	hash, err := HashPassword(in.Password)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal memproses password")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to process password")
 		return
 	}
 	user, err := CreateUser(s.db, in.Name, in.Email, hash)
 	if errors.Is(err, ErrEmailTaken) {
-		writeError(w, http.StatusConflict, "email_taken", "email sudah terdaftar")
+		writeError(w, http.StatusConflict, "email_taken", "email already registered")
 		return
 	}
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal membuat akun")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to create account")
 		return
 	}
 	
 	// Generate dan kirim OTP
 	code, err := GenerateOTP()
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal membuat kode verifikasi")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to generate verification code")
 		return
 	}
 	if err := CreateOTP(s.db, user.ID, code, "email_verification", 15); err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal menyimpan kode verifikasi")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to save verification code")
 		return
 	}
 	if err := SendOTPEmail(s.cfg.Email, user.Email, user.Name, code); err != nil {
 		// Log error tapi tetap lanjut - user bisa resend nanti
-		fmt.Printf("gagal mengirim email OTP ke %s: %v\n", user.Email, err)
+		fmt.Printf("failed to send OTP email to %s: %v\n", user.Email, err)
 	}
 	
 	// Return user info tanpa token - harus verify dulu
 	writeJSON(w, http.StatusCreated, map[string]any{
 		"user": publicUser(user),
-		"message": "Akun berhasil dibuat. Silakan cek email untuk kode verifikasi.",
+		"message": "Account created. Please check your email for the verification code.",
 	})
 }
 
@@ -81,23 +81,23 @@ func (s *server) handleLogin(w http.ResponseWriter, r *http.Request) {
 	if errors.Is(err, ErrNotFound) || !CheckPassword(in.Password, user.PasswordHash) {
 		// Pesan sama untuk email tidak ada dan password salah, supaya
 		// penyerang tidak bisa menebak akun yang terdaftar.
-		writeError(w, http.StatusUnauthorized, "invalid_credentials", "email atau password salah")
+		writeError(w, http.StatusUnauthorized, "invalid_credentials", "incorrect email or password")
 		return
 	}
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal masuk")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to sign in")
 		return
 	}
 	
 	// Cek apakah email sudah diverifikasi
 	if !user.EmailVerified {
-		writeError(w, http.StatusForbidden, "email_not_verified", "email belum diverifikasi. Silakan cek email untuk kode verifikasi.")
+		writeError(w, http.StatusForbidden, "email_not_verified", "email not verified. Please check your email for the verification code.")
 		return
 	}
 	
 	token, err := IssueToken(s.cfg.EffectiveJWTSecret(), user.ID, user.Email, user.Name, s.cfg.JWTExpiryHrs)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal membuat token")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to create token")
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]any{
@@ -119,11 +119,11 @@ func publicUser(u User) map[string]any {
 func (s *server) handleMe(w http.ResponseWriter, r *http.Request) {
 	user, err := GetUserByID(s.db, userIDFromContext(r.Context()))
 	if errors.Is(err, ErrNotFound) {
-		writeError(w, http.StatusUnauthorized, "unauthorized", "akun tidak ditemukan")
+		writeError(w, http.StatusUnauthorized, "unauthorized", "account not found")
 		return
 	}
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal memuat profil")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to load profile")
 		return
 	}
 	writeJSON(w, http.StatusOK, publicUser(user))
@@ -138,36 +138,36 @@ func (s *server) handleVerifyOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if strings.TrimSpace(in.Email) == "" || strings.TrimSpace(in.Code) == "" {
-		writeError(w, http.StatusBadRequest, "validation_error", "email dan kode OTP harus diisi")
+		writeError(w, http.StatusBadRequest, "validation_error", "email and OTP code are required")
 		return
 	}
 	
 	user, err := GetUserByEmail(s.db, in.Email)
 	if errors.Is(err, ErrNotFound) {
-		writeError(w, http.StatusNotFound, "not_found", "akun tidak ditemukan")
+		writeError(w, http.StatusNotFound, "not_found", "account not found")
 		return
 	}
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal memuat akun")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to load account")
 		return
 	}
 	
 	if user.EmailVerified {
-		writeError(w, http.StatusBadRequest, "already_verified", "email sudah terverifikasi")
+		writeError(w, http.StatusBadRequest, "already_verified", "email already verified")
 		return
 	}
 	
 	if err := VerifyOTP(s.db, user.ID, strings.TrimSpace(in.Code), "email_verification"); err != nil {
 		if errors.Is(err, ErrInvalidOTP) {
-			writeError(w, http.StatusBadRequest, "invalid_otp", "kode OTP tidak valid atau sudah kadaluarsa")
+			writeError(w, http.StatusBadRequest, "invalid_otp", "invalid or expired OTP code")
 			return
 		}
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal memverifikasi kode")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to verify code")
 		return
 	}
 	
 	if err := MarkEmailVerified(s.db, user.ID); err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal memverifikasi email")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to verify email")
 		return
 	}
 	
@@ -175,14 +175,14 @@ func (s *server) handleVerifyOTP(w http.ResponseWriter, r *http.Request) {
 	user, _ = GetUserByID(s.db, user.ID)
 	token, err := IssueToken(s.cfg.EffectiveJWTSecret(), user.ID, user.Email, user.Name, s.cfg.JWTExpiryHrs)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal membuat token")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to create token")
 		return
 	}
 	
 	writeJSON(w, http.StatusOK, map[string]any{
 		"token": token,
 		"user":  publicUser(user),
-		"message": "Email berhasil diverifikasi!",
+		"message": "Email verified successfully!",
 	})
 }
 
@@ -200,38 +200,38 @@ func (s *server) handleResendOTP(w http.ResponseWriter, r *http.Request) {
 	
 	user, err := GetUserByEmail(s.db, in.Email)
 	if errors.Is(err, ErrNotFound) {
-		writeError(w, http.StatusNotFound, "not_found", "akun tidak ditemukan")
+		writeError(w, http.StatusNotFound, "not_found", "account not found")
 		return
 	}
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal memuat akun")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to load account")
 		return
 	}
 	
 	if user.EmailVerified {
-		writeError(w, http.StatusBadRequest, "already_verified", "email sudah terverifikasi")
+		writeError(w, http.StatusBadRequest, "already_verified", "email already verified")
 		return
 	}
 	
 	code, err := GenerateOTP()
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal membuat kode verifikasi")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to generate verification code")
 		return
 	}
 	
 	if err := CreateOTP(s.db, user.ID, code, "email_verification", 15); err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal menyimpan kode verifikasi")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to save verification code")
 		return
 	}
 	
 	if err := SendOTPEmail(s.cfg.Email, user.Email, user.Name, code); err != nil {
-		fmt.Printf("gagal mengirim email OTP ke %s: %v\n", user.Email, err)
-		writeError(w, http.StatusInternalServerError, "email_failed", "gagal mengirim email. Coba lagi nanti.")
+		fmt.Printf("failed to send OTP email to %s: %v\n", user.Email, err)
+		writeError(w, http.StatusInternalServerError, "email_failed", "failed to send email. Try again later.")
 		return
 	}
 	
 	writeJSON(w, http.StatusOK, map[string]any{
-		"message": "Kode verifikasi baru telah dikirim ke email kamu.",
+		"message": "A new verification code has been sent to your email.",
 	})
 }
 
@@ -240,7 +240,7 @@ func (s *server) handleResendOTP(w http.ResponseWriter, r *http.Request) {
 func (s *server) handleListProjects(w http.ResponseWriter, r *http.Request) {
 	projects, err := ListProjects(s.db, userIDFromContext(r.Context()))
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal memuat proyek")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to load projects")
 		return
 	}
 	writeJSON(w, http.StatusOK, projects)
@@ -257,7 +257,7 @@ func (s *server) handleCreateProject(w http.ResponseWriter, r *http.Request) {
 	}
 	p, err := CreateProject(s.db, userIDFromContext(r.Context()), in)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal membuat proyek")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to create project")
 		return
 	}
 	writeJSON(w, http.StatusCreated, p)
@@ -279,11 +279,11 @@ func (s *server) handlePatchProject(w http.ResponseWriter, r *http.Request) {
 	}
 	p, err := UpdateProject(s.db, userIDFromContext(r.Context()), id, in)
 	if errors.Is(err, ErrNotFound) {
-		writeError(w, http.StatusNotFound, "not_found", "proyek tidak ditemukan")
+		writeError(w, http.StatusNotFound, "not_found", "project not found")
 		return
 	}
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal mengubah proyek")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to update project")
 		return
 	}
 	writeJSON(w, http.StatusOK, p)
@@ -296,10 +296,10 @@ func (s *server) handleDeleteProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := DeleteProject(s.db, userIDFromContext(r.Context()), id); errors.Is(err, ErrNotFound) {
-		writeError(w, http.StatusNotFound, "not_found", "proyek tidak ditemukan")
+		writeError(w, http.StatusNotFound, "not_found", "project not found")
 		return
 	} else if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal menghapus proyek")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to delete project")
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"deleted": true, "id": id})
@@ -336,7 +336,7 @@ func entryFilterFromQuery(r *http.Request) EntryFilter {
 func (s *server) handleListEntries(w http.ResponseWriter, r *http.Request) {
 	entries, err := ListEntries(s.db, userIDFromContext(r.Context()), entryFilterFromQuery(r))
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal memuat entri")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to load entries")
 		return
 	}
 	writeJSON(w, http.StatusOK, entries)
@@ -353,11 +353,11 @@ func (s *server) handleCreateEntry(w http.ResponseWriter, r *http.Request) {
 	}
 	e, err := CreateEntry(s.db, userIDFromContext(r.Context()), in)
 	if errors.Is(err, ErrNotFound) {
-		writeError(w, http.StatusNotFound, "not_found", "proyek tidak ditemukan")
+		writeError(w, http.StatusNotFound, "not_found", "project not found")
 		return
 	}
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal membuat entri")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to create entry")
 		return
 	}
 	writeJSON(w, http.StatusCreated, e)
@@ -371,11 +371,11 @@ func (s *server) handleGetEntry(w http.ResponseWriter, r *http.Request) {
 	}
 	e, err := GetEntry(s.db, userIDFromContext(r.Context()), id)
 	if errors.Is(err, ErrNotFound) {
-		writeError(w, http.StatusNotFound, "not_found", "entri tidak ditemukan")
+		writeError(w, http.StatusNotFound, "not_found", "entry not found")
 		return
 	}
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal memuat entri")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to load entries")
 		return
 	}
 	writeJSON(w, http.StatusOK, e)
@@ -397,11 +397,11 @@ func (s *server) handlePatchEntry(w http.ResponseWriter, r *http.Request) {
 	}
 	e, err := UpdateEntry(s.db, userIDFromContext(r.Context()), id, in)
 	if errors.Is(err, ErrNotFound) {
-		writeError(w, http.StatusNotFound, "not_found", "entri atau proyek tidak ditemukan")
+		writeError(w, http.StatusNotFound, "not_found", "entry or project not found")
 		return
 	}
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal mengubah entri")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to update entry")
 		return
 	}
 	writeJSON(w, http.StatusOK, e)
@@ -414,10 +414,10 @@ func (s *server) handleDeleteEntry(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := DeleteEntry(s.db, userIDFromContext(r.Context()), id); errors.Is(err, ErrNotFound) {
-		writeError(w, http.StatusNotFound, "not_found", "entri tidak ditemukan")
+		writeError(w, http.StatusNotFound, "not_found", "entry not found")
 		return
 	} else if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal menghapus entri")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to delete entry")
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"deleted": true, "id": id})
@@ -431,11 +431,11 @@ func (s *server) handleDuplicateEntry(w http.ResponseWriter, r *http.Request) {
 	}
 	e, err := DuplicateEntry(s.db, userIDFromContext(r.Context()), id)
 	if errors.Is(err, ErrNotFound) {
-		writeError(w, http.StatusNotFound, "not_found", "entri tidak ditemukan")
+		writeError(w, http.StatusNotFound, "not_found", "entry not found")
 		return
 	}
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal menduplikasi entri")
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to duplicate entry")
 		return
 	}
 	writeJSON(w, http.StatusCreated, e)

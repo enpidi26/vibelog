@@ -3,7 +3,7 @@
     <div class="frame frame-narrow">
       <div class="topbar">
         <Logo />
-        <RouterLink to="/" class="micro-label back-link">Kembali ke beranda</RouterLink>
+        <RouterLink to="/" class="micro-label back-link">Back to home</RouterLink>
       </div>
       <main class="auth-main anim-pop">
         <h1 class="pixel-small">{{ title }}</h1>

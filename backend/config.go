@@ -57,20 +57,20 @@ func LoadConfig() Config {
 func (c Config) Validate() error {
 	if c.Env == "production" {
 		if c.JWTSecret == "" {
-			return errors.New("JWT_SECRET harus diisi di mode production")
+			return errors.New("JWT_SECRET must be set in production mode")
 		}
 		if c.JWTSecret == devJWTSecret {
-			return errors.New("JWT_SECRET masih memakai nilai development default")
+			return errors.New("JWT_SECRET is still using the development default value")
 		}
 		if len(c.JWTSecret) < 32 {
-			return errors.New("JWT_SECRET harus minimal 32 karakter di mode production")
+			return errors.New("JWT_SECRET must be at least 32 characters in production mode")
 		}
 	}
 	if c.Port == "" {
-		return errors.New("PORT tidak boleh kosong")
+		return errors.New("PORT cannot be empty")
 	}
 	if c.DatabasePath == "" {
-		return errors.New("DATABASE_PATH tidak boleh kosong")
+		return errors.New("DATABASE_PATH cannot be empty")
 	}
 	return nil
 }

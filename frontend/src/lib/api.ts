@@ -44,7 +44,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (!res.ok) {
     const err = (data ?? {}) as { error?: { code?: string; message?: string } }
     throw new ApiError(
-      err.error?.message ?? `Server mengembalikan ${res.status}.`,
+      err.error?.message ?? `Server returned ${res.status}.`,
       err.error?.code ?? 'unknown',
       res.status,
     )
@@ -132,7 +132,7 @@ export const api = {
     const sep = qs ? '&' : '?'
     const res = await fetch(`/api/entries/export${qs}${sep}format=${format}`, { headers })
     if (!res.ok) {
-      throw new ApiError('Gagal mengekspor entri.', 'export_failed', res.status)
+      throw new ApiError('Failed to export entries.', 'export_failed', res.status)
     }
     const blob = await res.blob()
     const disposition = res.headers.get('Content-Disposition') ?? ''

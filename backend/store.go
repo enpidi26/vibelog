@@ -81,8 +81,8 @@ type Summary struct {
 }
 
 var ErrNotFound = errors.New("tidak ditemukan")
-var ErrEmailTaken = errors.New("email sudah terdaftar")
-var ErrInvalidOTP = errors.New("kode OTP tidak valid atau sudah kadaluarsa")
+var ErrEmailTaken = errors.New("email already registered")
+var ErrInvalidOTP = errors.New("invalid or expired OTP code")
 
 // OpenDB membuka SQLite, mengaktifkan WAL + foreign keys, dan migrasi.
 func OpenDB(path string) (*sql.DB, error) {
@@ -605,10 +605,10 @@ func EntrySummary(db *sql.DB, userID int64, projectID *int64) (Summary, error) {
 	if s.ByTool, err = countBy("tool"); err != nil {
 		return s, err
 	}
-	// By project: nama proyek, entri tanpa proyek digabung sebagai "Tanpa proyek".
-	rows, err := db.Query(`SELECT COALESCE(p.name, 'Tanpa proyek'), COUNT(*)
+	// By project: nama proyek, entri tanpa proyek digabung sebagai "No project".
+	rows, err := db.Query(`SELECT COALESCE(p.name, 'No project'), COUNT(*)
 		FROM entries e LEFT JOIN projects p ON p.id = e.project_id AND p.user_id = e.user_id
-		WHERE e.user_id = ?`+projClause+` GROUP BY COALESCE(p.name, 'Tanpa proyek') ORDER BY COUNT(*) DESC LIMIT 10`, args...)
+		WHERE e.user_id = ?`+projClause+` GROUP BY COALESCE(p.name, 'No project') ORDER BY COUNT(*) DESC LIMIT 10`, args...)
 	if err != nil {
 		return s, err
 	}
