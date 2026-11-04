@@ -4,12 +4,18 @@ export interface User {
   id: number
   name: string
   email: string
+  email_verified: boolean
   created_at: string
 }
 
 export interface AuthResponse {
   token: string
   user: User
+}
+
+export interface RegisterResponse {
+  user: User
+  message: string
 }
 
 export interface Project {

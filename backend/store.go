@@ -12,11 +12,13 @@ import (
 )
 
 type User struct {
-	ID           int64     `json:"id"`
-	Name         string    `json:"name"`
-	Email        string    `json:"email"`
-	PasswordHash string    `json:"-"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID              int64      `json:"id"`
+	Name            string     `json:"name"`
+	Email           string     `json:"email"`
+	PasswordHash    string     `json:"-"`
+	EmailVerified   bool       `json:"email_verified"`
+	EmailVerifiedAt *time.Time `json:"email_verified_at,omitempty"`
+	CreatedAt       time.Time  `json:"created_at"`
 }
 
 type Project struct {
@@ -80,6 +82,7 @@ type Summary struct {
 
 var ErrNotFound = errors.New("tidak ditemukan")
 var ErrEmailTaken = errors.New("email sudah terdaftar")
+var ErrInvalidOTP = errors.New("kode OTP tidak valid atau sudah kadaluarsa")
 
 // OpenDB membuka SQLite, mengaktifkan WAL + foreign keys, dan migrasi.
 func OpenDB(path string) (*sql.DB, error) {
@@ -111,6 +114,8 @@ func migrate(db *sql.DB) error {
 			name TEXT NOT NULL,
 			email TEXT NOT NULL UNIQUE,
 			password_hash TEXT NOT NULL,
+			email_verified INTEGER NOT NULL DEFAULT 0,
+			email_verified_at TEXT,
 			created_at TEXT NOT NULL
 		);
 		CREATE TABLE IF NOT EXISTS projects (
@@ -139,10 +144,20 @@ func migrate(db *sql.DB) error {
 			created_at TEXT NOT NULL,
 			updated_at TEXT NOT NULL
 		);
+		CREATE TABLE IF NOT EXISTS otp_codes (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			code TEXT NOT NULL,
+			purpose TEXT NOT NULL,
+			expires_at TEXT NOT NULL,
+			used INTEGER NOT NULL DEFAULT 0,
+			created_at TEXT NOT NULL
+		);
 		CREATE INDEX IF NOT EXISTS idx_projects_user ON projects(user_id, name);
 		CREATE INDEX IF NOT EXISTS idx_entries_user_created ON entries(user_id, created_at DESC, id DESC);
 		CREATE INDEX IF NOT EXISTS idx_entries_user_project ON entries(user_id, project_id);
 		CREATE INDEX IF NOT EXISTS idx_entries_user_outcome ON entries(user_id, outcome);
+		CREATE INDEX IF NOT EXISTS idx_otp_user_purpose ON otp_codes(user_id, purpose, expires_at);
 	`)
 	return err
 }
@@ -187,7 +202,7 @@ func nullableInt(v sql.NullInt64) *int {
 
 func CreateUser(db *sql.DB, name, email, passwordHash string) (User, error) {
 	email = strings.ToLower(strings.TrimSpace(email))
-	res, err := db.Exec(`INSERT INTO users (name, email, password_hash, created_at) VALUES (?, ?, ?, ?)`,
+	res, err := db.Exec(`INSERT INTO users (name, email, password_hash, email_verified, created_at) VALUES (?, ?, ?, 0, ?)`,
 		strings.TrimSpace(name), email, passwordHash, utcNow())
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
@@ -205,13 +220,20 @@ func CreateUser(db *sql.DB, name, email, passwordHash string) (User, error) {
 func GetUserByID(db *sql.DB, id int64) (User, error) {
 	var u User
 	var created string
-	err := db.QueryRow(`SELECT id, name, email, password_hash, created_at FROM users WHERE id = ?`, id).
-		Scan(&u.ID, &u.Name, &u.Email, &u.PasswordHash, &created)
+	var verified int
+	var verifiedAt sql.NullString
+	err := db.QueryRow(`SELECT id, name, email, password_hash, email_verified, email_verified_at, created_at FROM users WHERE id = ?`, id).
+		Scan(&u.ID, &u.Name, &u.Email, &u.PasswordHash, &verified, &verifiedAt, &created)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return User{}, ErrNotFound
 		}
 		return User{}, err
+	}
+	u.EmailVerified = verified == 1
+	if verifiedAt.Valid {
+		t := parseTime(verifiedAt.String)
+		u.EmailVerifiedAt = &t
 	}
 	u.CreatedAt = parseTime(created)
 	return u, nil
@@ -220,14 +242,21 @@ func GetUserByID(db *sql.DB, id int64) (User, error) {
 func GetUserByEmail(db *sql.DB, email string) (User, error) {
 	var u User
 	var created string
-	err := db.QueryRow(`SELECT id, name, email, password_hash, created_at FROM users WHERE email = ?`,
+	var verified int
+	var verifiedAt sql.NullString
+	err := db.QueryRow(`SELECT id, name, email, password_hash, email_verified, email_verified_at, created_at FROM users WHERE email = ?`,
 		strings.ToLower(strings.TrimSpace(email))).
-		Scan(&u.ID, &u.Name, &u.Email, &u.PasswordHash, &created)
+		Scan(&u.ID, &u.Name, &u.Email, &u.PasswordHash, &verified, &verifiedAt, &created)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return User{}, ErrNotFound
 		}
 		return User{}, err
+	}
+	u.EmailVerified = verified == 1
+	if verifiedAt.Valid {
+		t := parseTime(verifiedAt.String)
+		u.EmailVerifiedAt = &t
 	}
 	u.CreatedAt = parseTime(created)
 	return u, nil
@@ -622,4 +651,55 @@ func EntrySummary(db *sql.DB, userID int64, projectID *int64) (Summary, error) {
 		s.TopTags = s.TopTags[:10]
 	}
 	return s, nil
+}
+
+// ---- OTP Management ----
+
+// CreateOTP membuat kode OTP 6 digit untuk user dan purpose tertentu.
+func CreateOTP(db *sql.DB, userID int64, code, purpose string, expiryMinutes int) error {
+	expiresAt := time.Now().UTC().Add(time.Duration(expiryMinutes) * time.Minute).Format(time.RFC3339Nano)
+	_, err := db.Exec(`INSERT INTO otp_codes (user_id, code, purpose, expires_at, created_at) VALUES (?, ?, ?, ?, ?)`,
+		userID, code, purpose, expiresAt, utcNow())
+	return err
+}
+
+// VerifyOTP memvalidasi kode OTP untuk user dan purpose tertentu.
+// Mengembalikan error jika tidak valid atau sudah kadaluarsa.
+func VerifyOTP(db *sql.DB, userID int64, code, purpose string) error {
+	var id int64
+	var expiresAt, used string
+	err := db.QueryRow(`SELECT id, expires_at, used FROM otp_codes 
+		WHERE user_id = ? AND code = ? AND purpose = ? 
+		ORDER BY created_at DESC LIMIT 1`, userID, code, purpose).
+		Scan(&id, &expiresAt, &used)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrInvalidOTP
+		}
+		return err
+	}
+	if used == "1" {
+		return ErrInvalidOTP
+	}
+	expiry := parseTime(expiresAt)
+	if time.Now().UTC().After(expiry) {
+		return ErrInvalidOTP
+	}
+	// Tandai sebagai sudah dipakai
+	_, err = db.Exec(`UPDATE otp_codes SET used = 1 WHERE id = ?`, id)
+	return err
+}
+
+// MarkEmailVerified menandai email user sebagai terverifikasi.
+func MarkEmailVerified(db *sql.DB, userID int64) error {
+	now := utcNow()
+	_, err := db.Exec(`UPDATE users SET email_verified = 1, email_verified_at = ? WHERE id = ?`, now, userID)
+	return err
+}
+
+// CleanupExpiredOTPs menghapus OTP yang sudah kadaluarsa (lebih dari 24 jam).
+func CleanupExpiredOTPs(db *sql.DB) error {
+	cutoff := time.Now().UTC().Add(-24 * time.Hour).Format(time.RFC3339Nano)
+	_, err := db.Exec(`DELETE FROM otp_codes WHERE expires_at < ?`, cutoff)
+	return err
 }

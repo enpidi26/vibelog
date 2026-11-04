@@ -42,7 +42,8 @@ async function onSubmit() {
   loading.value = true
   try {
     await register(name.value.trim(), email.value.trim(), password.value)
-    await router.push('/app')
+    // Redirect ke halaman verifikasi OTP
+    await router.push(`/verify-otp?email=${encodeURIComponent(email.value.trim())}`)
   } catch (e) {
     error.value = e instanceof ApiError ? e.message : 'Gagal membuat akun. Coba lagi.'
   } finally {

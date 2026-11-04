@@ -20,6 +20,7 @@ type Config struct {
 	FrontendURL   string
 	AuthRateLimit int
 	APIRateLimit  int
+	Email         EmailConfig
 }
 
 const devJWTSecret = "dev-only-secret-change-me-in-production"
@@ -47,6 +48,7 @@ func LoadConfig() Config {
 		FrontendURL:   envOr("FRONTEND_URL", "http://127.0.0.1:4173"),
 		AuthRateLimit: 20,
 		APIRateLimit:  300,
+		Email:         LoadEmailConfig(),
 	}
 }
 

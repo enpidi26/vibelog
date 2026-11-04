@@ -45,14 +45,26 @@ func (s *server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "internal_error", "gagal membuat akun")
 		return
 	}
-	token, err := IssueToken(s.cfg.EffectiveJWTSecret(), user.ID, user.Email, user.Name, s.cfg.JWTExpiryHrs)
+	
+	// Generate dan kirim OTP
+	code, err := GenerateOTP()
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "gagal membuat token")
+		writeError(w, http.StatusInternalServerError, "internal_error", "gagal membuat kode verifikasi")
 		return
 	}
+	if err := CreateOTP(s.db, user.ID, code, "email_verification", 15); err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "gagal menyimpan kode verifikasi")
+		return
+	}
+	if err := SendOTPEmail(s.cfg.Email, user.Email, user.Name, code); err != nil {
+		// Log error tapi tetap lanjut - user bisa resend nanti
+		fmt.Printf("gagal mengirim email OTP ke %s: %v\n", user.Email, err)
+	}
+	
+	// Return user info tanpa token - harus verify dulu
 	writeJSON(w, http.StatusCreated, map[string]any{
-		"token": token,
-		"user":  publicUser(user),
+		"user": publicUser(user),
+		"message": "Akun berhasil dibuat. Silakan cek email untuk kode verifikasi.",
 	})
 }
 
@@ -76,6 +88,13 @@ func (s *server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "internal_error", "gagal masuk")
 		return
 	}
+	
+	// Cek apakah email sudah diverifikasi
+	if !user.EmailVerified {
+		writeError(w, http.StatusForbidden, "email_not_verified", "email belum diverifikasi. Silakan cek email untuk kode verifikasi.")
+		return
+	}
+	
 	token, err := IssueToken(s.cfg.EffectiveJWTSecret(), user.ID, user.Email, user.Name, s.cfg.JWTExpiryHrs)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal_error", "gagal membuat token")
@@ -88,7 +107,13 @@ func (s *server) handleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func publicUser(u User) map[string]any {
-	return map[string]any{"id": u.ID, "name": u.Name, "email": u.Email, "created_at": u.CreatedAt}
+	return map[string]any{
+		"id":             u.ID,
+		"name":           u.Name,
+		"email":          u.Email,
+		"email_verified": u.EmailVerified,
+		"created_at":     u.CreatedAt,
+	}
 }
 
 func (s *server) handleMe(w http.ResponseWriter, r *http.Request) {
@@ -102,6 +127,112 @@ func (s *server) handleMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, publicUser(user))
+}
+
+func (s *server) handleVerifyOTP(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		Email string `json:"email"`
+		Code  string `json:"code"`
+	}
+	if !decodeJSON(w, r, &in) {
+		return
+	}
+	if strings.TrimSpace(in.Email) == "" || strings.TrimSpace(in.Code) == "" {
+		writeError(w, http.StatusBadRequest, "validation_error", "email dan kode OTP harus diisi")
+		return
+	}
+	
+	user, err := GetUserByEmail(s.db, in.Email)
+	if errors.Is(err, ErrNotFound) {
+		writeError(w, http.StatusNotFound, "not_found", "akun tidak ditemukan")
+		return
+	}
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "gagal memuat akun")
+		return
+	}
+	
+	if user.EmailVerified {
+		writeError(w, http.StatusBadRequest, "already_verified", "email sudah terverifikasi")
+		return
+	}
+	
+	if err := VerifyOTP(s.db, user.ID, strings.TrimSpace(in.Code), "email_verification"); err != nil {
+		if errors.Is(err, ErrInvalidOTP) {
+			writeError(w, http.StatusBadRequest, "invalid_otp", "kode OTP tidak valid atau sudah kadaluarsa")
+			return
+		}
+		writeError(w, http.StatusInternalServerError, "internal_error", "gagal memverifikasi kode")
+		return
+	}
+	
+	if err := MarkEmailVerified(s.db, user.ID); err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "gagal memverifikasi email")
+		return
+	}
+	
+	// Refresh user data dan issue token
+	user, _ = GetUserByID(s.db, user.ID)
+	token, err := IssueToken(s.cfg.EffectiveJWTSecret(), user.ID, user.Email, user.Name, s.cfg.JWTExpiryHrs)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "gagal membuat token")
+		return
+	}
+	
+	writeJSON(w, http.StatusOK, map[string]any{
+		"token": token,
+		"user":  publicUser(user),
+		"message": "Email berhasil diverifikasi!",
+	})
+}
+
+func (s *server) handleResendOTP(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		Email string `json:"email"`
+	}
+	if !decodeJSON(w, r, &in) {
+		return
+	}
+	if strings.TrimSpace(in.Email) == "" {
+		writeError(w, http.StatusBadRequest, "validation_error", "email harus diisi")
+		return
+	}
+	
+	user, err := GetUserByEmail(s.db, in.Email)
+	if errors.Is(err, ErrNotFound) {
+		writeError(w, http.StatusNotFound, "not_found", "akun tidak ditemukan")
+		return
+	}
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "gagal memuat akun")
+		return
+	}
+	
+	if user.EmailVerified {
+		writeError(w, http.StatusBadRequest, "already_verified", "email sudah terverifikasi")
+		return
+	}
+	
+	code, err := GenerateOTP()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "gagal membuat kode verifikasi")
+		return
+	}
+	
+	if err := CreateOTP(s.db, user.ID, code, "email_verification", 15); err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "gagal menyimpan kode verifikasi")
+		return
+	}
+	
+	if err := SendOTPEmail(s.cfg.Email, user.Email, user.Name, code); err != nil {
+		fmt.Printf("gagal mengirim email OTP ke %s: %v\n", user.Email, err)
+		writeError(w, http.StatusInternalServerError, "email_failed", "gagal mengirim email. Coba lagi nanti.")
+		return
+	}
+	
+	writeJSON(w, http.StatusOK, map[string]any{
+		"message": "Kode verifikasi baru telah dikirim ke email kamu.",
+	})
 }
 
 // ---- Projects ----

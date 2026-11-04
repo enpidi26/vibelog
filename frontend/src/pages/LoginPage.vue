@@ -39,7 +39,15 @@ async function onSubmit() {
     await login(email.value.trim(), password.value)
     await router.push('/app')
   } catch (e) {
-    error.value = e instanceof ApiError ? e.message : 'Gagal masuk. Coba lagi.'
+    if (e instanceof ApiError && e.code === 'email_not_verified') {
+      // Redirect ke halaman verifikasi
+      error.value = e.message
+      setTimeout(() => {
+        router.push(`/verify-otp?email=${encodeURIComponent(email.value.trim())}`)
+      }, 2000)
+    } else {
+      error.value = e instanceof ApiError ? e.message : 'Gagal masuk. Coba lagi.'
+    }
   } finally {
     loading.value = false
   }
