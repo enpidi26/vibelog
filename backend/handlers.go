@@ -80,12 +80,6 @@ func (s *server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	// Cek apakah email sudah diverifikasi
-	if !user.EmailVerified {
-		writeError(w, http.StatusForbidden, "email_not_verified", "email not verified. Please check your email for the verification code.")
-		return
-	}
-	
 	token, err := IssueToken(s.cfg.EffectiveJWTSecret(), user.ID, user.Email, user.Name, s.cfg.JWTExpiryHrs)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal_error", "failed to create token")
