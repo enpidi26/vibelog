@@ -1,23 +1,23 @@
 <template>
   <form class="inline-form" @submit.prevent="onSubmit">
     <div class="field">
-      <label for="project-name">Nama proyek</label>
-      <input id="project-name" v-model="name" type="text" maxlength="80" required placeholder="Toko online" />
+      <label for="project-name">Project name</label>
+      <input id="project-name" v-model="name" type="text" maxlength="80" required placeholder="Online store" />
     </div>
     <div class="field">
-      <label for="project-desc">Deskripsi (opsional)</label>
-      <input id="project-desc" v-model="description" type="text" maxlength="500" placeholder="Apa yang sedang dibangun di proyek ini?" />
+      <label for="project-desc">Description (optional)</label>
+      <input id="project-desc" v-model="description" type="text" maxlength="500" placeholder="What are you building in this project?" />
     </div>
     <div class="field">
-      <label for="project-color">Warna</label>
+      <label for="project-color">Color</label>
       <select id="project-color" v-model="color">
         <option v-for="c in PROJECT_COLORS" :key="c" :value="c">{{ c }}</option>
       </select>
     </div>
     <p v-if="error" class="error" role="alert">{{ error }}</p>
     <div class="row">
-      <button class="btn primary" type="submit" :disabled="saving">{{ saving ? 'Menyimpan...' : initial ? 'Simpan perubahan' : 'Buat proyek' }}</button>
-      <button class="btn" type="button" @click="$emit('cancel')">Batal</button>
+      <button class="btn primary" type="submit" :disabled="saving">{{ saving ? 'Saving...' : initial ? 'Save changes' : 'Create project' }}</button>
+      <button class="btn" type="button" @click="$emit('cancel')">Cancel</button>
     </div>
   </form>
 </template>

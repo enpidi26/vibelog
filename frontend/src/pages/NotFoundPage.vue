@@ -3,9 +3,9 @@
     <div class="frame frame-narrow">
       <main class="not-found anim-pop">
         <p class="pixel-small">404_</p>
-        <h1>Halaman tidak ditemukan</h1>
-        <p>Tautan yang kamu buka tidak ada atau sudah berubah.</p>
-        <RouterLink to="/" class="btn primary">Kembali ke beranda</RouterLink>
+        <h1>Page not found</h1>
+        <p>The link you opened doesn't exist or has changed.</p>
+        <RouterLink to="/" class="btn primary">Back to home</RouterLink>
       </main>
     </div>
   </div>

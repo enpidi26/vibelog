@@ -2,27 +2,27 @@
   <form class="entry-form" @submit.prevent="onSubmit">
     <div class="form-grid">
       <div class="field span-2">
-        <label for="entry-title">Judul</label>
-        <input id="entry-title" v-model="title" type="text" maxlength="120" required placeholder="Perbaiki login yang kadang gagal" />
+        <label for="entry-title">Title</label>
+        <input id="entry-title" v-model="title" type="text" maxlength="120" required placeholder="Fix login that sometimes fails" />
       </div>
       <div class="field">
-        <label for="entry-project">Proyek</label>
+        <label for="entry-project">Project</label>
         <select id="entry-project" v-model="projectId">
-          <option value="">Tanpa proyek</option>
+          <option value="">No project</option>
           <option v-for="p in projects" :key="p.id" :value="String(p.id)">{{ p.name }}</option>
         </select>
       </div>
       <div class="field">
-        <label for="entry-outcome">Hasil</label>
+        <label for="entry-outcome">Outcome</label>
         <select id="entry-outcome" v-model="outcome">
-          <option value="in_progress">Berjalan</option>
-          <option value="success">Berhasil</option>
-          <option value="partial">Sebagian</option>
-          <option value="failed">Gagal</option>
+          <option value="in_progress">In Progress</option>
+          <option value="success">Success</option>
+          <option value="partial">Partial</option>
+          <option value="failed">Failed</option>
         </select>
       </div>
       <div class="field">
-        <label for="entry-model">Model AI</label>
+        <label for="entry-model">AI Model</label>
         <input id="entry-model" v-model="model" type="text" maxlength="60" required list="model-list" placeholder="Claude" />
         <datalist id="model-list">
           <option v-for="m in MODEL_SUGGESTIONS" :key="m" :value="m" />
@@ -36,34 +36,34 @@
         </datalist>
       </div>
       <div class="field">
-        <label for="entry-rating">Rating (opsional)</label>
+        <label for="entry-rating">Rating (optional)</label>
         <select id="entry-rating" v-model="rating">
-          <option value="">Belum dinilai</option>
-          <option value="1">1, buruk</option>
-          <option value="2">2, kurang</option>
-          <option value="3">3, cukup</option>
-          <option value="4">4, bagus</option>
-          <option value="5">5, sangat bagus</option>
+          <option value="">Not rated</option>
+          <option value="1">1, poor</option>
+          <option value="2">2, fair</option>
+          <option value="3">3, good</option>
+          <option value="4">4, great</option>
+          <option value="5">5, excellent</option>
         </select>
       </div>
       <div class="field">
-        <label for="entry-tags">Tag, pisahkan koma (opsional)</label>
+        <label for="entry-tags">Tags, comma separated (optional)</label>
         <input id="entry-tags" v-model="tagsText" type="text" placeholder="auth, refactor, bug" />
       </div>
       <div class="field span-2">
-        <label for="entry-prompt">Prompt yang dikirim</label>
-        <textarea id="entry-prompt" v-model="promptText" rows="6" maxlength="10000" required placeholder="Tempel prompt persis seperti yang dikirim ke AI..."></textarea>
-        <p class="hint">{{ promptText.length }} / 10000 karakter</p>
+        <label for="entry-prompt">Prompt sent</label>
+        <textarea id="entry-prompt" v-model="promptText" rows="6" maxlength="10000" required placeholder="Paste the prompt exactly as sent to AI..."></textarea>
+        <p class="hint">{{ promptText.length }} / 10000 characters</p>
       </div>
       <div class="field span-2">
-        <label for="entry-notes">Hasil dan catatan (opsional)</label>
-        <textarea id="entry-notes" v-model="resultNotes" rows="4" maxlength="10000" placeholder="Apa yang berhasil, apa yang gagal, dan apa yang mau dicoba di iterasi berikutnya..."></textarea>
+        <label for="entry-notes">Results and notes (optional)</label>
+        <textarea id="entry-notes" v-model="resultNotes" rows="4" maxlength="10000" placeholder="What worked, what failed, and what to try in the next iteration..."></textarea>
       </div>
     </div>
     <p v-if="error" class="error" role="alert">{{ error }}</p>
     <div class="row">
-      <button class="btn primary" type="submit" :disabled="saving">{{ saving ? 'Menyimpan...' : initial ? 'Simpan perubahan' : 'Simpan entri' }}</button>
-      <button class="btn" type="button" @click="$emit('cancel')">Batal</button>
+      <button class="btn primary" type="submit" :disabled="saving">{{ saving ? 'Saving...' : initial ? 'Save changes' : 'Save entry' }}</button>
+      <button class="btn" type="button" @click="$emit('cancel')">Cancel</button>
     </div>
   </form>
 </template>

@@ -1,8 +1,8 @@
 export const OUTCOME_LABELS: Record<string, string> = {
-  success: 'Berhasil',
-  partial: 'Sebagian',
-  failed: 'Gagal',
-  in_progress: 'Berjalan',
+  success: 'Success',
+  partial: 'Partial',
+  failed: 'Failed',
+  in_progress: 'In Progress',
 }
 
 export const MODEL_SUGGESTIONS = ['Claude', 'GPT-4', 'ChatGPT', 'Gemini', 'Codex']
@@ -30,7 +30,7 @@ export function outcomeLabel(outcome: string): string {
 export function formatDate(iso: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
-  return d.toLocaleString('id-ID', {
+  return d.toLocaleString('en-US', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -41,7 +41,7 @@ export function formatDate(iso: string): string {
 }
 
 export function stars(rating: number | null): string {
-  if (rating === null) return 'Belum dinilai'
+  if (rating === null) return 'Not rated'
   return '★'.repeat(rating) + '☆'.repeat(5 - rating)
 }
 

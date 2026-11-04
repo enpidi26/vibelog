@@ -2,14 +2,14 @@
   <article class="ref-card">
     <div class="ref-card-top">
       <span class="tag-chip" :class="{ orange: entry.outcome === 'success' }">{{ outcomeLabel(entry.outcome) }}</span>
-      <span class="micro-label">Iterasi {{ entry.iteration_no }}</span>
+      <span class="micro-label">Iteration {{ entry.iteration_no }}</span>
     </div>
 
     <div class="ref-card-body">
       <h3>{{ entry.title }}</h3>
       <p class="meta">
-        {{ entry.project_name || 'Tanpa proyek' }}
-        <span v-if="entry.parent_id"> · lanjutan dari entri #{{ entry.parent_id }}</span>
+        {{ entry.project_name || 'No project' }}
+        <span v-if="entry.parent_id"> · continued from entry #{{ entry.parent_id }}</span>
         · {{ formatDate(entry.created_at) }}
       </p>
       <p class="chips">
@@ -19,12 +19,12 @@
       </p>
 
       <button class="prompt-toggle" type="button" @click="promptOpen = !promptOpen">
-        {{ promptOpen ? 'Sembunyikan prompt' : 'Lihat prompt' }}
+        {{ promptOpen ? 'Hide prompt' : 'View prompt' }}
       </button>
       <Transition name="prompt">
         <div v-if="promptOpen" class="prompt-box">
           <pre>{{ entry.prompt_text }}</pre>
-          <button class="btn small" type="button" @click="copyPrompt">{{ copied ? 'Prompt tersalin' : 'Salin prompt' }}</button>
+          <button class="btn small" type="button" @click="copyPrompt">{{ copied ? 'Prompt copied' : 'Copy prompt' }}</button>
         </div>
       </Transition>
 
@@ -46,18 +46,18 @@
     <div class="ref-card-stats">
       <div class="ref-stat"><b>{{ entry.model }}</b><span>Model</span></div>
       <div class="ref-stat"><b>{{ entry.tool }}</b><span>Tool</span></div>
-      <div class="ref-stat"><b>{{ entry.iteration_no }}</b><span>Iterasi</span></div>
-      <div class="ref-stat"><b>{{ entry.rating === null ? 'Belum dinilai' : entry.rating + ' / 5' }}</b><span>Rating</span></div>
-      <button class="arrow-cell" type="button" :aria-label="promptOpen ? 'Sembunyikan prompt' : 'Lihat prompt'" @click="promptOpen = !promptOpen">→</button>
+      <div class="ref-stat"><b>{{ entry.iteration_no }}</b><span>Iteration</span></div>
+      <div class="ref-stat"><b>{{ entry.rating === null ? 'Not rated' : entry.rating + ' / 5' }}</b><span>Rating</span></div>
+      <button class="arrow-cell" type="button" :aria-label="promptOpen ? 'Hide prompt' : 'View prompt'" @click="promptOpen = !promptOpen">→</button>
     </div>
 
     <footer class="card-actions">
-      <button class="btn small" type="button" @click="$emit('edit', entry)">Ubah</button>
+      <button class="btn small" type="button" @click="$emit('edit', entry)">Edit</button>
       <button class="btn small" type="button" :disabled="duplicating" @click="$emit('duplicate', entry)">
-        {{ duplicating ? 'Membuat...' : 'Iterasi berikutnya' }}
+        {{ duplicating ? 'Creating...' : 'Next iteration' }}
       </button>
       <button class="btn small danger" type="button" :disabled="deleting" @click="$emit('delete', entry)">
-        {{ deleting ? 'Menghapus...' : 'Hapus' }}
+        {{ deleting ? 'Deleting...' : 'Delete' }}
       </button>
     </footer>
   </article>
