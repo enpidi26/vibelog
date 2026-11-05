@@ -18,10 +18,11 @@ type Config struct {
 	JWTSecret         string
 	JWTExpiryHrs      int
 	FrontendURL       string
-	AuthRateLimit     int
-	APIRateLimit      int
-	GitHubClientID    string
+	AuthRateLimit      int
+	APIRateLimit       int
+	GitHubClientID     string
 	GitHubClientSecret string
+	ResendAPIKey       string
 }
 
 const devJWTSecret = "dev-only-secret-change-me-in-production"
@@ -51,6 +52,7 @@ func LoadConfig() Config {
 		APIRateLimit:       300,
 		GitHubClientID:     strings.TrimSpace(os.Getenv("GITHUB_CLIENT_ID")),
 		GitHubClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
+		ResendAPIKey:       strings.TrimSpace(os.Getenv("RESEND_API_KEY")),
 	}
 }
 
