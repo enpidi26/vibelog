@@ -7,12 +7,16 @@ import LoginPage from '../pages/LoginPage.vue'
 import NotFoundPage from '../pages/NotFoundPage.vue'
 import RegisterPage from '../pages/RegisterPage.vue'
 import OAuthCallbackPage from '../pages/OAuthCallbackPage.vue'
+import EmailLoginPage from '../pages/EmailLoginPage.vue'
+import MagicLinkVerifyPage from '../pages/MagicLinkVerifyPage.vue'
 
 const routes: RouteRecordRaw[] = [
   { path: '/', component: LandingPage, meta: { guestOnly: true } },
   { path: '/login', component: LoginPage, meta: { guestOnly: true } },
+  { path: '/login/email', component: EmailLoginPage, meta: { guestOnly: true } },
   { path: '/register', component: RegisterPage, meta: { guestOnly: true } },
   { path: '/auth/github/callback', component: OAuthCallbackPage },
+  { path: '/auth/verify', component: MagicLinkVerifyPage },
   { path: '/app', component: DashboardPage, meta: { requiresAuth: true } },
   { path: '/:pathMatch(.*)*', component: NotFoundPage },
 ]

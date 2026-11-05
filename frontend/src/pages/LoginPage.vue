@@ -15,6 +15,9 @@
         <GithubIcon />
         Continue with GitHub
       </a>
+      <RouterLink to="/login/email" class="btn block email-btn">
+        Continue with Email (Magic Link)
+      </RouterLink>
     </form>
     <template #foot>
       Don't have an account? <RouterLink to="/register">Sign up here</RouterLink>.
