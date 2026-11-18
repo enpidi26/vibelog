@@ -208,6 +208,12 @@ Struktur: `backend/` (satu package `main`; `store.go` SQL, `handlers.go` HTTP,
 `migrations.go` skema, `mailer.go` email, `static.go` SPA embed),
 `frontend/src/` (`lib/api.ts`, `composables/`, `pages/`, `components/`).
 
+## Release
+
+Push tag `v*` (misalnya `v1.0.0`) untuk memicu GitHub Actions: binary linux
+amd64/arm64, macOS, Windows, checksums, dan GitHub Release. `scripts/install.sh`
+mengunduh release terbaru dari situ.
+
 ## Lisensi
 
 MIT. Lihat [`LICENSE`](LICENSE).
