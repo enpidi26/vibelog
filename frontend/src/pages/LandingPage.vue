@@ -46,23 +46,12 @@
         </section>
 
         <section class="card-grid" aria-label="VibeLog Features">
-          <article v-for="(card, i) in cards" :key="card.title" class="ref-card card-anim" :style="{ animationDelay: (i * 70) + 'ms' }">
-            <div class="ref-card-top">
-              <span class="tag-chip">{{ card.tag }}</span>
-              <span class="micro-label">{{ card.index }}</span>
-            </div>
-            <div class="ref-card-body feature-body">
-              <h2>{{ card.title }}</h2>
-              <p>{{ card.description }}</p>
-            </div>
-            <div class="ref-card-stats">
-              <div class="ref-stat"><b>{{ card.stats[0].value }}</b><span>{{ card.stats[0].label }}</span></div>
-              <div class="ref-stat"><b>{{ card.stats[1].value }}</b><span>{{ card.stats[1].label }}</span></div>
-              <div class="ref-stat"><b>{{ card.stats[2].value }}</b><span>{{ card.stats[2].label }}</span></div>
-              <div class="ref-stat"><b>{{ card.stats[3].value }}</b><span>{{ card.stats[3].label }}</span></div>
-              <RouterLink to="/register" class="arrow-cell arrow-link" aria-label="Try this feature">→</RouterLink>
-            </div>
-          </article>
+          <FeatureCard
+            v-for="(card, i) in cards"
+            :key="card.title"
+            :card="card"
+            :style="{ animationDelay: (i * 70) + 'ms' }"
+          />
         </section>
 
         <section class="cta-row" id="start">
@@ -85,21 +74,11 @@
 </template>
 
 <script setup lang="ts">
+import FeatureCard from '../components/FeatureCard.vue'
 import Logo from '../components/Logo.vue'
+import type { FeatureCard as FeatureCardData } from '../types'
 
-interface FeatureStat {
-  value: string
-  label: string
-}
-interface FeatureCard {
-  index: string
-  tag: string
-  title: string
-  description: string
-  stats: [FeatureStat, FeatureStat, FeatureStat, FeatureStat]
-}
-
-const cards: FeatureCard[] = [
+const cards: FeatureCardData[] = [
   {
     index: '01',
     tag: 'Iteration',
@@ -277,29 +256,6 @@ const cards: FeatureCard[] = [
 }
 .card-grid {
   padding: 0 1.25rem;
-}
-.feature-body {
-  align-items: center;
-  text-align: center;
-  justify-content: center;
-  min-height: 170px;
-}
-.feature-body h2 {
-  margin: 0;
-  font-size: 1.3rem;
-  line-height: 1.25;
-}
-.feature-body p {
-  margin: 0.4rem 0 0;
-  color: #5c5c54;
-  font-size: 0.92rem;
-  max-width: 17rem;
-}
-.arrow-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
 }
 .cta-row {
   display: grid;

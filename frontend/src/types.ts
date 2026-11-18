@@ -61,6 +61,19 @@ export interface EntryInput {
   tags: string[]
 }
 
+export interface FeatureStat {
+  value: string
+  label: string
+}
+
+export interface FeatureCard {
+  index: string
+  tag: string
+  title: string
+  description: string
+  stats: [FeatureStat, FeatureStat, FeatureStat, FeatureStat]
+}
+
 export interface EntryFilters {
   q: string
   project_id: string

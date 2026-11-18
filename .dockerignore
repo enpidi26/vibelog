@@ -3,11 +3,7 @@
 data
 **/node_modules
 frontend/dist
-backend/vibelog
-backend/vibelog-api
-backend/*.exe
-backend/web/dist
-Dokumentasi
+internal/web/dist
 docs
 dist
 .github

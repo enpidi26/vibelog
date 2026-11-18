@@ -26,7 +26,7 @@ request ke container di `127.0.0.1:8090`. Setelah proxy aktif, isi
 ```bash
 make build
 APP_ENV=production BASE_URL=https://vibelog.example.com \
-DATABASE_PATH=/var/lib/vibelog/vibelog.db ./backend/vibelog
+DATABASE_PATH=/var/lib/vibelog/vibelog.db ./vibelog
 ```
 
 Jalankan sebagai service systemd, lalu taruh nginx/Caddy di depannya.

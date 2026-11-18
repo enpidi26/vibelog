@@ -42,15 +42,15 @@ jobs:
 
       - name: Embed frontend
         run: |
-          rm -rf backend/web/dist
-          mkdir -p backend/web/dist
-          cp -r frontend/dist/. backend/web/dist/
-          touch backend/web/dist/.gitkeep
+          rm -rf internal/web/dist
+          mkdir -p internal/web/dist
+          cp -r frontend/dist/. internal/web/dist/
+          touch internal/web/dist/.gitkeep
 
       - uses: actions/setup-go@v5
         with:
-          go-version-file: backend/go.mod
-          cache-dependency-path: backend/go.sum
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
 
       - name: Build and package
         env:
@@ -62,13 +62,10 @@ jobs:
           mkdir -p dist
           BIN=vibelog
           if [ "$GOOS" = "windows" ]; then BIN=vibelog.exe; fi
-          (
-            cd backend
-            CGO_ENABLED=0 GOOS="$GOOS" GOARCH="$GOARCH" go build \
-              -trimpath \
-              -ldflags "-s -w -X main.version=${GITHUB_REF_NAME}" \
-              -o "../dist/${BIN}" .
-          )
+          CGO_ENABLED=0 GOOS="$GOOS" GOARCH="$GOARCH" go build \
+            -trimpath \
+            -ldflags "-s -w -X main.version=${GITHUB_REF_NAME}" \
+            -o "dist/${BIN}" ./cmd/vibelog
           cp README.md LICENSE dist/
           if [ "$GOOS" = "windows" ]; then
             (

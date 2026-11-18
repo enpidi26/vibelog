@@ -29,16 +29,16 @@ fi
 
 echo "Membangun frontend..."
 (cd frontend && npm run build --silent)
-rm -rf backend/web/dist && mkdir -p backend/web/dist
-cp -r frontend/dist/. backend/web/dist/
-touch backend/web/dist/.gitkeep
+rm -rf internal/web/dist && mkdir -p internal/web/dist
+cp -r frontend/dist/. internal/web/dist/
+touch internal/web/dist/.gitkeep
 
 echo "Membangun backend..."
-(cd backend && CGO_ENABLED=0 go build -trimpath -o vibelog .)
+CGO_ENABLED=0 go build -trimpath -o vibelog ./cmd/vibelog
 
 echo ""
 echo "VibeLog berjalan di ${BASE_URL}"
 echo "Magic link (EMAIL_DRIVER=console) tercetak di terminal ini."
 echo "Tekan Ctrl+C untuk berhenti."
 echo ""
-exec ./backend/vibelog
+exec ./vibelog

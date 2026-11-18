@@ -74,7 +74,8 @@ wajib diisi alamat proxy; tanpa itu semua pengunjung terlihat sebagai satu IP
 dan kuota rate limit dibagi bersama.
 
 Panduan operasional lengkap (backup, upgrade, restore, SMTP, troubleshooting):
-[`docs/SELF_HOST.md`](docs/SELF_HOST.md).
+[`docs/SELF_HOST.md`](docs/SELF_HOST.md). Latar produk dan screenshot:
+[`docs/PRODUCT.md`](docs/PRODUCT.md).
 
 ## Backup
 
@@ -126,7 +127,7 @@ Build dari source (Go 1.26+, Node.js 22+, tanpa gcc):
 
 ```bash
 make build          # frontend di-embed, lalu binary Go
-./backend/vibelog
+./vibelog
 ```
 
 Docker Compose tetap tersedia sebagai alternatif (bagian di atas).
@@ -205,9 +206,18 @@ make test    # go test + typecheck frontend
 make build   # frontend di-embed, lalu binary Go
 ```
 
-Struktur: `backend/` (satu package `main`; `store.go` SQL, `handlers.go` HTTP,
-`migrations.go` skema, `mailer.go` email, `static.go` SPA embed),
-`frontend/src/` (`lib/api.ts`, `composables/`, `pages/`, `components/`).
+Struktur:
+
+```
+cmd/vibelog/     entrypoint (server, backup, usage)
+internal/        domain, database, auth, config, email, export, httpapi, netutil, ratelimit, web
+frontend/src/    SPA Vue (lib, composables, pages, components)
+deploy/          unit systemd + contoh reverse proxy
+docs/            panduan self-host, produk, verifikasi
+scripts/         install.sh, run.sh
+```
+
+Tidak ada paket `main` di luar `cmd/`; setiap paket punya tesnya sendiri.
 
 ## Release
 

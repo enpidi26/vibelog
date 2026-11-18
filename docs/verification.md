@@ -7,8 +7,13 @@ Jangan menganggap klaim README sebagai bukti tanpa membaca bagian ini.
 
 ### Backend
 
-- `go vet ./...` bersih, `gofmt -l .` kosong.
-- `CGO_ENABLED=0 go test -count=1 ./...` **23/23 lolos**, termasuk:
+- Struktur `cmd/vibelog/` + `internal/` (auth, config, database, domain,
+  email, export, httpapi, netutil, ratelimit, web). Tidak ada paket `main`
+  di luar `cmd/`, dan tidak ada file Go non-test di atas 250 baris.
+- `go vet ./...` bersih, `gofmt -l cmd internal` kosong.
+- `CGO_ENABLED=0 go test -count=1 ./...` **46/46 lolos** di 9 paket
+  (`auth`, `config`, `database`, `domain`, `email`, `export`, `httpapi`,
+  `netutil`, `ratelimit`), termasuk:
   - migrasi bernomor idempoten dan tercatat di `schema_migrations`;
   - secret JWT otomatis dibuat, dipakai ulang antar restart, dan tidak
     ditulis bila `JWT_SECRET` diisi;
@@ -47,9 +52,12 @@ Dijalankan dengan `APP_ENV=production`, database kosong, tanpa `JWT_SECRET`:
 ### Frontend
 
 - `npm run typecheck` bersih.
-- `npm run build` sukses (122 modul, ±191 KB JS, ±20 KB CSS).
+- `npm run build` sukses (131 modul, ±191,5 KB JS, ±20,2 KB CSS).
 - Perubahan rilis: verifikasi magic link lewat `POST`, tanggal memakai zona
   waktu browser, bukan `Asia/Bangkok`.
+- Halaman dashboard/landing dipecah menjadi komponen `DashboardTopbar`,
+  `ExportCta`, dan `FeatureCard`; `main.css` dipecah menjadi `base.css`,
+  `layout.css`, dan `components.css` yang diimpor berurutan.
 
 ## Yang TIDAK dijalankan di mesin ini
 
@@ -81,7 +89,7 @@ Dijalankan dengan `APP_ENV=production`, database kosong, tanpa `JWT_SECRET`:
 ## Cara memverifikasi ulang
 
 ```bash
-cd backend && go test -count=1 ./...
+go test -count=1 ./...
 cd frontend && npm run typecheck && npm run build
 cd .. && ./scripts/run.sh
 # Buka http://127.0.0.1:8080, daftar, buat entri, cek magic link di log.

@@ -81,7 +81,7 @@ make build
 APP_ENV=production \
 BASE_URL=https://vibelog.example.com \
 DATABASE_PATH=/var/lib/vibelog/vibelog.db \
-./backend/vibelog
+./vibelog
 ```
 
 Binary yang sama juga punya subcommand:

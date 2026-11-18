@@ -2,18 +2,12 @@
   <div class="frame-page">
     <div class="frame">
       <div class="dash-inner">
-    <header class="topbar">
-      <Logo />
-      <p class="micro-label dash-crumb">Journal / Dashboard</p>
-      <div class="top-actions">
-        <span v-if="authUser" class="user-name">{{ authUser.name }}</span>
-        <button class="btn small" type="button" :disabled="exporting" @click="exportPack('md')">
-          {{ exporting ? 'Exporting...' : 'Export Markdown' }}
-        </button>
-        <button class="btn small" type="button" :disabled="exporting" @click="exportPack('json')">Export JSON</button>
-        <button class="btn small" type="button" @click="onLogout">Sign out</button>
-      </div>
-    </header>
+    <DashboardTopbar
+      :user-name="authUser?.name"
+      :exporting="exporting"
+      @export="exportPack"
+      @signout="onLogout"
+    />
 
     <section class="dash-hero">
       <h1 class="pixel-headline hero-title">Journal_</h1>
@@ -168,16 +162,7 @@
       </div>
     </section>
 
-    <section class="cta-row" aria-label="Export prompt pack">
-      <div class="cta-left">
-        <p class="pixel-small"><span class="bullet" aria-hidden="true">►</span> Ready to export your prompt pack?</p>
-        <p>Export follows the active filters above.</p>
-      </div>
-      <div class="cta-right">
-        <button class="btn primary" type="button" :disabled="exporting" @click="exportPack('md')">Export Markdown</button>
-        <button class="btn" type="button" :disabled="exporting" @click="exportPack('json')">Export JSON</button>
-      </div>
-    </section>
+    <ExportCta :exporting="exporting" @export="exportPack" />
       </div>
     </div>
   </div>
@@ -188,7 +173,8 @@ import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import EntryCard from '../components/EntryCard.vue'
 import EntryForm from '../components/EntryForm.vue'
-import Logo from '../components/Logo.vue'
+import ExportCta from '../components/ExportCta.vue'
+import DashboardTopbar from '../components/DashboardTopbar.vue'
 import ProjectForm from '../components/ProjectForm.vue'
 import StatsCards from '../components/StatsCards.vue'
 import { useAuth } from '../composables/useAuth'
@@ -385,16 +371,8 @@ function onLogout() {
 .dash-inner {
   padding: 0 1.25rem 1.25rem;
 }
-.topbar {
-  margin: 0 -1.25rem;
-  padding-left: 1.25rem;
-  padding-right: 1.25rem;
-}
 .dash-hero {
   padding-top: 1.5rem;
-}
-.dash-crumb {
-  margin: 0;
 }
 .intro {
   margin: 0.8rem 0 0;
@@ -461,35 +439,8 @@ function onLogout() {
 .form-panel h3 {
   margin: 0 0 1rem;
 }
-.cta-row {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 1rem;
-  align-items: center;
-  border-top: 1px solid #d2d2c8;
-  margin-top: 1.25rem;
-  padding-top: 1.25rem;
-}
-.cta-left p {
-  margin: 0.3rem 0 0;
-  color: #5c5c54;
-}
-.cta-left .pixel-small {
-  color: #111;
-}
-.bullet {
-  color: #ff5c1a;
-}
-.cta-right {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
 @media (max-width: 720px) {
   .filters {
-    grid-template-columns: 1fr;
-  }
-  .cta-row {
     grid-template-columns: 1fr;
   }
 }
