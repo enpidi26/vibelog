@@ -11,7 +11,7 @@
 
     <section class="dash-hero">
       <h1 class="pixel-headline hero-title">Journal_</h1>
-      <p class="intro">Record the prompts you send, rate results, and iterate on what works.</p>
+      <p class="intro">Save the prompt, rate the result, iterate.</p>
     </section>
 
     <StatsCards :summary="summaryQuery.data.value" :loading="summaryQuery.isPending.value" />
@@ -47,7 +47,7 @@
           No project
         </button>
       </div>
-      <p class="hint">Select a project to edit or delete it. Deleting one keeps its entries (moved to No project).</p>
+      <p class="hint">Select a project to edit or delete it.</p>
       <div v-if="selectedProject" class="row">
         <button class="btn small" type="button" @click="openEditProject(selectedProject)">Edit this project</button>
         <button class="btn small danger" type="button" @click="deleteProject(selectedProject)">Delete this project</button>
@@ -67,8 +67,8 @@
     <section class="panel" aria-label="Filter entries">
       <div class="filters">
         <div class="field">
-          <label for="filter-q">Search title, prompt, notes, or tags</label>
-          <input id="filter-q" v-model="filters.q" type="search" placeholder="Search title, prompt, tags..." />
+          <label for="filter-q">Search</label>
+          <input id="filter-q" v-model="filters.q" type="search" placeholder="Title, prompt, notes, tags" />
         </div>
         <div class="field">
           <label for="filter-model">Model</label>
@@ -98,7 +98,7 @@
       <div v-if="summaryQuery.data.value?.top_tags.length" class="tags-row">
         <span class="muted">Popular tags:</span>
         <button
-          v-for="t in summaryQuery.data.value.top_tags"
+          v-for="t in summaryQuery.data.value.top_tags.slice(0, 6)"
           :key="t.name"
           class="tag"
           :class="{ active: filters.tag === t.name }"
@@ -111,7 +111,7 @@
       </div>
       <div class="row">
         <button class="btn small" type="button" @click="resetFilters">Reset filters</button>
-        <span class="muted">{{ entriesQuery.data.value?.length ?? 0 }} entries shown</span>
+        <span class="muted">{{ entriesQuery.data.value?.length ?? 0 }} entries</span>
       </div>
     </section>
 

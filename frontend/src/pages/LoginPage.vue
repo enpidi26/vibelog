@@ -16,7 +16,7 @@
         Continue with GitHub
       </a>
       <RouterLink v-if="meta.data.value?.email_login_enabled === true" to="/login/email" class="btn block email-btn">
-        Continue with Email (Magic Link)
+        Continue with Email
       </RouterLink>
     </form>
     <template #foot>

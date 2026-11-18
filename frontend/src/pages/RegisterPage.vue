@@ -11,8 +11,8 @@
           <input id="register-email" v-model="email" type="email" required autocomplete="email" />
         </div>
         <div class="field">
-          <label for="register-password">Password (minimum 8 characters)</label>
-          <input id="register-password" v-model="password" type="password" required minlength="8" autocomplete="new-password" />
+          <label for="register-password">Password</label>
+          <input id="register-password" v-model="password" type="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" />
         </div>
         <p v-if="error" class="error" role="alert">{{ error }}</p>
         <button class="btn primary block" type="submit" :disabled="loading">{{ loading ? 'Creating account...' : 'Sign up' }}</button>

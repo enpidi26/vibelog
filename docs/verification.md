@@ -52,12 +52,15 @@ Dijalankan dengan `APP_ENV=production`, database kosong, tanpa `JWT_SECRET`:
 ### Frontend
 
 - `npm run typecheck` bersih.
-- `npm run build` sukses (130 modul, ±193,7 KB JS, ±20 KB CSS).
+- `npm run build` sukses (130 modul, ±189,3 KB JS, ±16,1 KB CSS).
 - Perubahan rilis: verifikasi magic link lewat `POST`, tanggal memakai zona
   waktu browser, bukan `Asia/Bangkok`.
-- Halaman dashboard/landing dipecah menjadi komponen `DashboardTopbar`
-  dan `FeatureCard`; `main.css` dipecah menjadi `base.css`, `layout.css`,
-  dan `components.css` yang diimpor berurutan.
+- Halaman dashboard/landing dipecah menjadi komponen `DashboardTopbar`;
+  `main.css` dipecah menjadi `base.css`, `layout.css`, dan
+  `components.css` yang diimpor berurutan.
+- Simplifikasi teks: landing dari 6 kartu berstatistik menjadi 4 kartu satu
+  baris; CTA ganda dihapus; kartu entri kehilangan grid statistik ganda;
+  header dashboard memakai satu menu Export; label form dipendekkan.
 - Conditional UI: tombol GitHub, magic link, dan pendaftaran hanya tampil
   bila fiturnya aktif (`/api/meta`). Pendaftaran tertutup dan email `off`
   punya tampilan sendiri.

@@ -7,9 +7,8 @@
 
     <div class="ref-card-body">
       <h3>{{ entry.title }}</h3>
-      <p class="meta">
-        {{ entry.project_name || 'No project' }} · {{ formatDate(entry.created_at) }}
-      </p>
+      <p class="meta">{{ entry.project_name || 'No project' }} · {{ formatDate(entry.created_at) }}</p>
+      <p class="facts">{{ entry.model }} · {{ entry.tool }} · {{ ratingText }}</p>
 
       <button class="prompt-toggle" type="button" @click="promptOpen = !promptOpen">
         {{ promptOpen ? 'Hide prompt' : 'View prompt' }}
@@ -36,14 +35,6 @@
       </p>
     </div>
 
-    <div class="ref-card-stats">
-      <div class="ref-stat"><b>{{ entry.model }}</b><span>Model</span></div>
-      <div class="ref-stat"><b>{{ entry.tool }}</b><span>Tool</span></div>
-      <div class="ref-stat"><b>{{ entry.iteration_no }}</b><span>Iteration</span></div>
-      <div class="ref-stat"><b>{{ entry.rating === null ? 'Not rated' : entry.rating + ' / 5' }}</b><span>Rating</span></div>
-      <button class="arrow-cell" type="button" :aria-label="promptOpen ? 'Hide prompt' : 'View prompt'" @click="promptOpen = !promptOpen">→</button>
-    </div>
-
     <footer class="card-actions">
       <button class="btn small" type="button" @click="$emit('edit', entry)">Edit</button>
       <button class="btn small" type="button" :disabled="duplicating" @click="$emit('duplicate', entry)">
@@ -57,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { formatDate, outcomeLabel } from '../lib/format'
 import type { Entry } from '../types'
 
@@ -75,6 +66,7 @@ defineEmits<{
 
 const copied = ref(false)
 const promptOpen = ref(false)
+const ratingText = computed(() => (props.entry.rating === null ? 'Not rated' : `${props.entry.rating} / 5`))
 
 async function copyPrompt() {
   const text = props.entry.prompt_text
@@ -124,6 +116,11 @@ h3 {
   font-size: 0.85rem;
   color: #5c5c54;
 }
+.facts {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: #111;
+}
 .prompt-toggle {
   margin-top: 0.8rem;
   padding: 0;
@@ -133,6 +130,10 @@ h3 {
   color: #e64e12;
   cursor: pointer;
   text-align: left;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.prompt-toggle:hover {
+  color: #b83c0c;
 }
 .prompt-box {
   margin-top: 0.5rem;
@@ -141,7 +142,6 @@ pre {
   white-space: pre-wrap;
   word-break: break-word;
   font-family: 'Space Mono', monospace;
-  font-size: 0.85rem;
   background: #f6f6f1;
   border: 1px solid #d2d2c8;
   border-radius: 6px;
@@ -178,16 +178,5 @@ pre {
 .prompt-leave-to {
   opacity: 0;
   transform: translateY(-4px);
-}
-
-.prompt-toggle {
-  transition: color var(--dur-fast) var(--ease-out);
-}
-.prompt-toggle:hover {
-  color: #b83c0c;
-}
-
-.arrow-cell {
-  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 </style>

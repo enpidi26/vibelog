@@ -47,16 +47,16 @@
         </select>
       </div>
       <div class="field">
-        <label for="entry-tags">Tags, comma separated (optional)</label>
+        <label for="entry-tags">Tags (optional)</label>
         <input id="entry-tags" v-model="tagsText" type="text" placeholder="auth, refactor, bug" />
       </div>
       <div class="field span-2">
-        <label for="entry-prompt">Prompt sent</label>
+        <label for="entry-prompt">Prompt</label>
         <textarea id="entry-prompt" v-model="promptText" rows="6" maxlength="10000" required placeholder="Paste the prompt exactly as sent to AI..."></textarea>
         <p class="hint">{{ promptText.length }} / 10000 characters</p>
       </div>
       <div class="field span-2">
-        <label for="entry-notes">Results and notes (optional)</label>
+        <label for="entry-notes">Result notes (optional)</label>
         <textarea id="entry-notes" v-model="resultNotes" rows="4" maxlength="10000" placeholder="What worked, what failed, and what to try in the next iteration..."></textarea>
       </div>
     </div>
