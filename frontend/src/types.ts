@@ -8,6 +8,13 @@ export interface User {
   created_at: string
 }
 
+export interface InstanceMeta {
+  email_login_enabled: boolean
+  email_delivery: string
+  github_login_enabled: boolean
+  registration_enabled: boolean
+}
+
 export interface AuthResponse {
   token: string
   user: User

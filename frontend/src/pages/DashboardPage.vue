@@ -47,7 +47,7 @@
           No project
         </button>
       </div>
-      <p class="hint">Note: deleting a project doesn't delete its journal entries. Entries move to No project.</p>
+      <p class="hint">Select a project to edit or delete it. Deleting one keeps its entries (moved to No project).</p>
       <div v-if="selectedProject" class="row">
         <button class="btn small" type="button" @click="openEditProject(selectedProject)">Edit this project</button>
         <button class="btn small danger" type="button" @click="deleteProject(selectedProject)">Delete this project</button>
@@ -126,6 +126,7 @@
         <EntryForm
           :initial="editingEntry"
           :projects="projectsQuery.data.value ?? []"
+          :default-project-id="newEntryProjectId"
           :saving="entrySaving"
           :error="entryError"
           @submit="saveEntry"
@@ -162,7 +163,6 @@
       </div>
     </section>
 
-    <ExportCta :exporting="exporting" @export="exportPack" />
       </div>
     </div>
   </div>
@@ -173,7 +173,6 @@ import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import EntryCard from '../components/EntryCard.vue'
 import EntryForm from '../components/EntryForm.vue'
-import ExportCta from '../components/ExportCta.vue'
 import DashboardTopbar from '../components/DashboardTopbar.vue'
 import ProjectForm from '../components/ProjectForm.vue'
 import StatsCards from '../components/StatsCards.vue'
@@ -283,6 +282,7 @@ async function deleteProject(p: Project) {
 // Entri
 const showEntryForm = ref(false)
 const editingEntry = ref<Entry | null>(null)
+const newEntryProjectId = ref<number | null>(null)
 const entryError = ref('')
 const entrySaving = ref(false)
 const createEntry = useCreateEntry()
@@ -293,6 +293,8 @@ const duplicatingId = ref<number | null>(null)
 const deletingId = ref<number | null>(null)
 
 function openNewEntry() {
+  const pid = filters.project_id
+  newEntryProjectId.value = pid !== 'all' && pid !== 'none' && pid !== '' ? Number(pid) : null
   editingEntry.value = null
   entryError.value = ''
   showEntryForm.value = true

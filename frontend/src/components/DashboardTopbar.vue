@@ -4,10 +4,10 @@
     <p class="micro-label dash-crumb">Journal / Dashboard</p>
     <div class="top-actions">
       <span v-if="userName" class="user-name">{{ userName }}</span>
-      <button class="btn small" type="button" :disabled="exporting" @click="$emit('export', 'md')">
+      <button class="btn small" type="button" :disabled="exporting" title="Uses the active filters" @click="$emit('export', 'md')">
         {{ exporting ? 'Exporting...' : 'Export Markdown' }}
       </button>
-      <button class="btn small" type="button" :disabled="exporting" @click="$emit('export', 'json')">Export JSON</button>
+      <button class="btn small" type="button" :disabled="exporting" title="Uses the active filters" @click="$emit('export', 'json')">Export JSON</button>
       <button class="btn small" type="button" @click="$emit('signout')">Sign out</button>
     </div>
   </header>

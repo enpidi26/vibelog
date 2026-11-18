@@ -78,11 +78,18 @@ const props = defineProps<{
   projects: Project[]
   saving: boolean
   error: string
+  defaultProjectId?: number | null
 }>()
 const emit = defineEmits<{ submit: [input: EntryInput]; cancel: [] }>()
 
 const title = ref(props.initial?.title ?? '')
-const projectId = ref(props.initial?.project_id ? String(props.initial.project_id) : '')
+const projectId = ref(
+  props.initial?.project_id
+    ? String(props.initial.project_id)
+    : props.defaultProjectId
+      ? String(props.defaultProjectId)
+      : '',
+)
 const outcome = ref<Outcome>(props.initial?.outcome ?? 'in_progress')
 const model = ref(props.initial?.model ?? '')
 const tool = ref(props.initial?.tool ?? '')

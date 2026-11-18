@@ -1,4 +1,4 @@
-import { ApiError, type AuthResponse, type Entry, type EntryFilters, type EntryInput, type Project, type ProjectInput, type Summary, type User } from '../types'
+import { ApiError, type AuthResponse, type Entry, type EntryFilters, type EntryInput, type InstanceMeta, type Project, type ProjectInput, type Summary, type User } from '../types'
 
 export const TOKEN_KEY = 'vibelog_token'
 
@@ -66,6 +66,9 @@ function entryQuery(filters: EntryFilters): string {
 }
 
 export const api = {
+  meta(): Promise<InstanceMeta> {
+    return request<InstanceMeta>('/api/meta')
+  },
   register(name: string, email: string, password: string): Promise<AuthResponse> {
     return request<AuthResponse>('/api/auth/register', {
       method: 'POST',

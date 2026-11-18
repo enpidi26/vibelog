@@ -1,5 +1,9 @@
 <template>
-  <AuthShell title="Sign in with Email" subtitle="We'll send you a magic link to sign in.">
+  <AuthShell title="Sign in with Email" :subtitle="emailEnabled ? 'We\'ll send you a magic link to sign in.' : 'Password sign-in is available on this instance.'">
+    <template v-if="emailEnabled">
+    <p v-if="meta.data.value?.email_delivery === 'console'" class="hint console-note">
+      This instance prints sign-in links to the server log instead of sending email.
+    </p>
     <form v-if="!sent" @submit.prevent="onSubmit">
       <div class="field">
         <label for="magic-email">Email</label>
@@ -20,15 +24,26 @@
       <button class="btn primary block" @click="sent = false">Send another link</button>
       <RouterLink to="/login" class="btn block">Back to login</RouterLink>
     </div>
+    </template>
+    <div v-else class="success-message">
+      <div class="icon">✉️</div>
+      <h3>Email sign-in is disabled</h3>
+      <p>This instance uses password sign-in. Ask the owner if you need help.</p>
+      <RouterLink to="/login" class="btn primary block">Back to sign in</RouterLink>
+    </div>
   </AuthShell>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AuthShell from '../components/AuthShell.vue'
+import { useInstanceMeta } from '../composables/useInstanceMeta'
 import { api } from '../lib/api'
 import { ApiError } from '../types'
+
+const meta = useInstanceMeta()
+const emailEnabled = computed(() => meta.data.value?.email_login_enabled ?? true)
 
 const email = ref('')
 const error = ref('')
@@ -50,6 +65,13 @@ async function onSubmit() {
 </script>
 
 <style scoped>
+.console-note {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.75rem;
+  background: #fff7e6;
+  border: 1px solid #e6c27a;
+  border-radius: 6px;
+}
 .success-message {
   text-align: center;
   padding: 2rem 0;

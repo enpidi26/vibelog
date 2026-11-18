@@ -164,6 +164,7 @@ Semua endpoint di bawah `/api/` (kecuali `/health`) memakai
 | --- | --- | --- |
 | GET | `/health` | Status server + database |
 | GET | `/livez` | Liveness tanpa cek database |
+| GET | `/api/meta` | Fitur yang aktif: email, GitHub, pendaftaran |
 | POST | `/api/auth/register` | Daftar, mengembalikan token + user |
 | POST | `/api/auth/login` | Masuk |
 | GET | `/api/auth/me` | Profil dari token |
@@ -224,6 +225,24 @@ Tidak ada paket `main` di luar `cmd/`; setiap paket punya tesnya sendiri.
 Push tag `v*` (misalnya `v1.0.0`) untuk memicu GitHub Actions: binary linux
 amd64/arm64, macOS, Windows, checksums, dan GitHub Release. `scripts/install.sh`
 mengunduh release terbaru dari situ.
+
+## Batasan saat ini
+
+Cocok untuk self-host pribadi atau tim kecil. Belum untuk SaaS publik
+multi-tenant:
+
+- SQLite satu instance; belum ada mode multi-node.
+- Belum ada ubah password, hapus akun, atau halaman profil. Akses bisa
+dipulihkan lewat magic link bila email aktif.
+- Daftar entri menampilkan 100 terbaru; pencarian dan ekspor tetap mencakup
+seluruh data (ekspor tanpa batas).
+- Rate limit disimpan di memori per proses.
+- Belum ada import; tersedia ekspor Markdown/JSON.
+- GitHub OAuth dan SMTP perlu diuji dengan kredensial nyata sebelum instance
+dibuka ke publik.
+
+Untuk instance publik: pasang HTTPS, isi `BASE_URL`, konfigurasi SMTP, lalu
+set `ALLOW_REGISTRATION=false` setelah akun dibuat.
 
 ## Lisensi
 

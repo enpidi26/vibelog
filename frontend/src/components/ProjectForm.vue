@@ -11,7 +11,7 @@
     <div class="field">
       <label for="project-color">Color</label>
       <select id="project-color" v-model="color">
-        <option v-for="c in PROJECT_COLORS" :key="c" :value="c">{{ c }}</option>
+        <option v-for="c in PROJECT_COLORS" :key="c" :value="c">{{ c.charAt(0).toUpperCase() + c.slice(1) }}</option>
       </select>
     </div>
     <p v-if="error" class="error" role="alert">{{ error }}</p>

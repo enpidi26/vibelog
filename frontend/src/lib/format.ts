@@ -40,11 +40,6 @@ export function formatDate(iso: string): string {
   })
 }
 
-export function stars(rating: number | null): string {
-  if (rating === null) return 'Not rated'
-  return '★'.repeat(rating) + '☆'.repeat(5 - rating)
-}
-
 export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -52,6 +47,9 @@ export function downloadBlob(blob: Blob, filename: string): void {
   a.download = filename
   document.body.appendChild(a)
   a.click()
-  a.remove()
-  URL.revokeObjectURL(url)
+  // Give the browser time to start the download before dropping the blob.
+  setTimeout(() => {
+    a.remove()
+    URL.revokeObjectURL(url)
+  }, 1000)
 }

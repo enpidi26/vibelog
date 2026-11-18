@@ -19,3 +19,16 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleLive(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"status": "ok"})
 }
+
+// handleMeta memberi tahu frontend fitur opsional mana yang aktif, supaya
+// tombol GitHub/magic link tidak ditampilkan saat instance belum
+// mengonfigurasinya.
+func (s *Server) handleMeta(w http.ResponseWriter, r *http.Request) {
+	emailLogin := s.mailer != nil && s.mailer.Name() != "off"
+	writeJSON(w, http.StatusOK, map[string]any{
+		"email_login_enabled":  emailLogin,
+		"email_delivery":       s.mailer.Name(),
+		"github_login_enabled": s.cfg.GitHubClientID != "" && s.cfg.GitHubClientSecret != "",
+		"registration_enabled": s.cfg.AllowRegistration,
+	})
+}

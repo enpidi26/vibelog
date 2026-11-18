@@ -11,14 +11,14 @@ import EmailLoginPage from '../pages/EmailLoginPage.vue'
 import MagicLinkVerifyPage from '../pages/MagicLinkVerifyPage.vue'
 
 const routes: RouteRecordRaw[] = [
-  { path: '/', component: LandingPage, meta: { guestOnly: true } },
-  { path: '/login', component: LoginPage, meta: { guestOnly: true } },
-  { path: '/login/email', component: EmailLoginPage, meta: { guestOnly: true } },
-  { path: '/register', component: RegisterPage, meta: { guestOnly: true } },
-  { path: '/auth/github/callback', component: OAuthCallbackPage },
-  { path: '/auth/verify', component: MagicLinkVerifyPage },
-  { path: '/app', component: DashboardPage, meta: { requiresAuth: true } },
-  { path: '/:pathMatch(.*)*', component: NotFoundPage },
+  { path: '/', component: LandingPage, meta: { guestOnly: true, title: 'Prompt journal' } },
+  { path: '/login', component: LoginPage, meta: { guestOnly: true, title: 'Sign in' } },
+  { path: '/login/email', component: EmailLoginPage, meta: { guestOnly: true, title: 'Sign in with email' } },
+  { path: '/register', component: RegisterPage, meta: { guestOnly: true, title: 'Create account' } },
+  { path: '/auth/github/callback', component: OAuthCallbackPage, meta: { title: 'Signing in' } },
+  { path: '/auth/verify', component: MagicLinkVerifyPage, meta: { title: 'Signing in' } },
+  { path: '/app', component: DashboardPage, meta: { requiresAuth: true, title: 'Journal' } },
+  { path: '/:pathMatch(.*)*', component: NotFoundPage, meta: { title: 'Page not found' } },
 ]
 
 export const router = createRouter({
@@ -39,4 +39,9 @@ router.beforeEach(async (to) => {
     return '/app'
   }
   return true
+})
+
+router.afterEach((to) => {
+  const title = to.meta.title as string | undefined
+  document.title = title ? `${title} — VibeLog` : 'VibeLog — Prompt journal'
 })

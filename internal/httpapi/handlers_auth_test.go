@@ -46,3 +46,27 @@ func TestMeEndpoint(t *testing.T) {
 		t.Fatalf("unexpected user: %+v", user)
 	}
 }
+
+func TestMetaReflectsEnabledFeatures(t *testing.T) {
+	srv, _ := testServer(t, nil)
+
+	rec := doJSON(t, srv, "GET", "/api/meta", "", nil)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("meta: %d %s", rec.Code, rec.Body.String())
+	}
+	var meta map[string]any
+	if err := json.Unmarshal(rec.Body.Bytes(), &meta); err != nil {
+		t.Fatal(err)
+	}
+	if meta["email_login_enabled"] != true || meta["registration_enabled"] != true || meta["github_login_enabled"] != false || meta["email_delivery"] != "capture" {
+		t.Fatalf("unexpected meta: %+v", meta)
+	}
+
+	srv.cfg.AllowRegistration = false
+	srv.mailer = offTestMailer{}
+	rec = doJSON(t, srv, "GET", "/api/meta", "", nil)
+	_ = json.Unmarshal(rec.Body.Bytes(), &meta)
+	if meta["email_login_enabled"] != false || meta["registration_enabled"] != false || meta["email_delivery"] != "off" {
+		t.Fatalf("features should be disabled: %+v", meta)
+	}
+}

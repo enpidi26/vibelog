@@ -1,4 +1,4 @@
-# Verifikasi rilis self-host (18 November 2026)
+# Verifikasi rilis self-host (19 November 2026)
 
 Dokumen ini mencatat apa yang benar-benar dijalankan dan apa yang belum.
 Jangan menganggap klaim README sebagai bukti tanpa membaca bagian ini.
@@ -11,7 +11,7 @@ Jangan menganggap klaim README sebagai bukti tanpa membaca bagian ini.
   email, export, httpapi, netutil, ratelimit, web). Tidak ada paket `main`
   di luar `cmd/`, dan tidak ada file Go non-test di atas 250 baris.
 - `go vet ./...` bersih, `gofmt -l cmd internal` kosong.
-- `CGO_ENABLED=0 go test -count=1 ./...` **46/46 lolos** di 9 paket
+- `CGO_ENABLED=0 go test -count=1 ./...` **47/47 lolos** di 9 paket
   (`auth`, `config`, `database`, `domain`, `email`, `export`, `httpapi`,
   `netutil`, `ratelimit`), termasuk:
   - migrasi bernomor idempoten dan tercatat di `schema_migrations`;
@@ -52,12 +52,38 @@ Dijalankan dengan `APP_ENV=production`, database kosong, tanpa `JWT_SECRET`:
 ### Frontend
 
 - `npm run typecheck` bersih.
-- `npm run build` sukses (131 modul, ±191,5 KB JS, ±20,2 KB CSS).
+- `npm run build` sukses (130 modul, ±193,7 KB JS, ±20 KB CSS).
 - Perubahan rilis: verifikasi magic link lewat `POST`, tanggal memakai zona
   waktu browser, bukan `Asia/Bangkok`.
-- Halaman dashboard/landing dipecah menjadi komponen `DashboardTopbar`,
-  `ExportCta`, dan `FeatureCard`; `main.css` dipecah menjadi `base.css`,
-  `layout.css`, dan `components.css` yang diimpor berurutan.
+- Halaman dashboard/landing dipecah menjadi komponen `DashboardTopbar`
+  dan `FeatureCard`; `main.css` dipecah menjadi `base.css`, `layout.css`,
+  dan `components.css` yang diimpor berurutan.
+- Conditional UI: tombol GitHub, magic link, dan pendaftaran hanya tampil
+  bila fiturnya aktif (`/api/meta`). Pendaftaran tertutup dan email `off`
+  punya tampilan sendiri.
+- Cleanup UX: blok ekspor duplikat di bawah dihapus, metadata ganda di kartu
+  entri dihapus, ID parent tidak lagi ditampilkan, proyek aktif otomatis
+  terpilih saat membuat entri, dan copy prompt punya fallback.
+- `downloadBlob` menunda pelepasan blob URL agar unduhan tidak terpotong.
+- Judul dokumen berubah per rute; footer landing menyebut lisensi MIT.
+
+### End-to-end browser (Chrome DevTools Protocol)
+
+Dijalankan terhadap binary produksi dengan database demo, viewport 1440x900
+dan 390x844:
+
+- **30/30 cek lolos**: guard `/app` tanpa token, register dari form, empty
+  state, buat proyek, buat entri (proyek terpilih otomatis), edit, next
+  iteration, filter pencarian/outcome/tag, copy prompt, ekspor Markdown,
+  hapus iterasi, hapus proyek (entri bertahan), hapus entri, login password,
+  password salah, magic link lewat UI + log console, register email duplikat,
+  halaman 404, dan tidak ada overflow horizontal di 390px.
+- **9/9 cek instance tertutup** (`ALLOW_REGISTRATION=false`, `EMAIL_DRIVER=off`):
+  landing tanpa tombol daftar, login hanya password, halaman register
+  menampilkan status tertutup, halaman email menjelaskan pengiriman mati.
+- Catatan: Chrome headless membatalkan penulisan file unduhan. Yang diverifikasi
+  adalah event `downloadWillBegin`, nama file `.md`, dan payload ekspor yang
+  diambil halaman. Unduhan file nyata perlu dicek di browser biasa.
 
 ## Yang TIDAK dijalankan di mesin ini
 
@@ -66,7 +92,7 @@ Dijalankan dengan `APP_ENV=production`, database kosong, tanpa `JWT_SECRET`:
   verifikasi build image harus dilakukan di mesin dengan Docker:
   `docker compose up -d --build`.
 - **CI GitHub Actions sudah hijau** di Ubuntu (Go 1.26, Node 22,
-  `CGO_ENABLED=0`): typecheck, build frontend, `go vet`, dan 23 test lolos.
+  `CGO_ENABLED=0`): typecheck, build frontend, `go vet`, dan 47 test lolos.
 - **Release sudah dibuat dan workflow-nya hijau.** Tag `v1.0.0` dan `v1.0.1`
   menghasilkan binary linux amd64/arm64, macOS, Windows, plus checksums.
   `install.sh` diuji dari release sungguhan dengan `VIBELOG_DRY_RUN=1`:

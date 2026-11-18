@@ -8,14 +8,7 @@
     <div class="ref-card-body">
       <h3>{{ entry.title }}</h3>
       <p class="meta">
-        {{ entry.project_name || 'No project' }}
-        <span v-if="entry.parent_id"> · continued from entry #{{ entry.parent_id }}</span>
-        · {{ formatDate(entry.created_at) }}
-      </p>
-      <p class="chips">
-        <span>Model: <strong>{{ entry.model }}</strong></span>
-        <span>Tool: <strong>{{ entry.tool }}</strong></span>
-        <span>{{ stars(entry.rating) }}</span>
+        {{ entry.project_name || 'No project' }} · {{ formatDate(entry.created_at) }}
       </p>
 
       <button class="prompt-toggle" type="button" @click="promptOpen = !promptOpen">
@@ -65,7 +58,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { formatDate, outcomeLabel, stars } from '../lib/format'
+import { formatDate, outcomeLabel } from '../lib/format'
 import type { Entry } from '../types'
 
 const props = defineProps<{
@@ -84,15 +77,38 @@ const copied = ref(false)
 const promptOpen = ref(false)
 
 async function copyPrompt() {
+  const text = props.entry.prompt_text
   try {
-    await navigator.clipboard.writeText(props.entry.prompt_text)
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text)
+    } else {
+      fallbackCopy(text)
+    }
     copied.value = true
-    setTimeout(() => {
-      copied.value = false
-    }, 2000)
   } catch {
-    copied.value = false
+    try {
+      fallbackCopy(text)
+      copied.value = true
+    } catch {
+      copied.value = false
+    }
   }
+  setTimeout(() => {
+    copied.value = false
+  }, 2000)
+}
+
+// Fallback untuk browser/origin yang tidak mengizinkan Clipboard API.
+function fallbackCopy(text: string) {
+  const area = document.createElement('textarea')
+  area.value = text
+  area.style.position = 'fixed'
+  area.style.opacity = '0'
+  document.body.appendChild(area)
+  area.select()
+  const ok = document.execCommand('copy')
+  area.remove()
+  if (!ok) throw new Error('copy failed')
 }
 </script>
 
@@ -107,14 +123,6 @@ h3 {
   margin: 0.3rem 0 0;
   font-size: 0.85rem;
   color: #5c5c54;
-}
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1rem;
-  font-size: 0.9rem;
-  color: #5c5c54;
-  margin: 0.6rem 0 0;
 }
 .prompt-toggle {
   margin-top: 0.8rem;

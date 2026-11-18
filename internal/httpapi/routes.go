@@ -12,6 +12,7 @@ func (s *Server) Handler() http.Handler {
 
 	mux.HandleFunc("GET /health", s.handleHealth)
 	mux.HandleFunc("GET /livez", s.handleLive)
+	mux.HandleFunc("GET /api/meta", s.handleMeta)
 
 	mux.Handle("POST /api/auth/register", s.rateLimit(s.authLimit, http.HandlerFunc(s.handleRegister)))
 	mux.Handle("POST /api/auth/login", s.rateLimit(s.authLimit, http.HandlerFunc(s.handleLogin)))

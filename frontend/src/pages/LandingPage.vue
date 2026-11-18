@@ -9,7 +9,7 @@
         </nav>
         <nav class="right-nav" aria-label="Account">
           <RouterLink to="/login" class="nav-link">Sign in</RouterLink>
-          <RouterLink to="/register" class="btn primary small">Sign up free</RouterLink>
+          <RouterLink v-if="registrationOpen" to="/register" class="btn primary small">Sign up free</RouterLink>
         </nav>
       </header>
 
@@ -50,6 +50,7 @@
             v-for="(card, i) in cards"
             :key="card.title"
             :card="card"
+            :cta-to="registrationOpen ? '/register' : '/login'"
             :style="{ animationDelay: (i * 70) + 'ms' }"
           />
         </section>
@@ -60,23 +61,28 @@
             <p>Sign up, create projects, and save prompts you just sent to AI.</p>
           </div>
           <div class="cta-right">
-            <RouterLink to="/register" class="btn primary">Start my journal</RouterLink>
-            <RouterLink to="/login" class="btn">I already have an account</RouterLink>
+            <RouterLink :to="registrationOpen ? '/register' : '/login'" class="btn primary">{{ registrationOpen ? 'Start my journal' : 'Sign in to your journal' }}</RouterLink>
+            <RouterLink v-if="registrationOpen" to="/login" class="btn">I already have an account</RouterLink>
           </div>
         </section>
       </main>
 
       <footer class="frame-foot">
-        <p class="micro-label">© 2026 VibeLog. All rights reserved.</p>
+        <p class="micro-label">© 2026 VibeLog. MIT licensed. · <a href="https://github.com/enpidi26/vibelog" rel="noopener">GitHub</a></p>
       </footer>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import FeatureCard from '../components/FeatureCard.vue'
 import Logo from '../components/Logo.vue'
+import { useInstanceMeta } from '../composables/useInstanceMeta'
 import type { FeatureCard as FeatureCardData } from '../types'
+
+const meta = useInstanceMeta()
+const registrationOpen = computed(() => meta.data.value?.registration_enabled ?? true)
 
 const cards: FeatureCardData[] = [
   {

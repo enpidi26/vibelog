@@ -12,7 +12,7 @@
       <div v-for="stat in card.stats" :key="stat.label" class="ref-stat">
         <b>{{ stat.value }}</b><span>{{ stat.label }}</span>
       </div>
-      <RouterLink to="/register" class="arrow-cell arrow-link" aria-label="Try this feature">→</RouterLink>
+      <RouterLink :to="ctaTo" class="arrow-cell arrow-link" aria-label="Open VibeLog">→</RouterLink>
     </div>
   </article>
 </template>
@@ -21,7 +21,7 @@
 import { RouterLink } from 'vue-router'
 import type { FeatureCard } from '../types'
 
-defineProps<{ card: FeatureCard }>()
+withDefaults(defineProps<{ card: FeatureCard; ctaTo?: string }>(), { ctaTo: '/register' })
 </script>
 
 <style scoped>

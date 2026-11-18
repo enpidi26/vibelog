@@ -9,7 +9,7 @@
         <div class="icon">❌</div>
         <h3>Verification failed</h3>
         <p class="error">{{ error }}</p>
-        <RouterLink to="/login/email" class="btn primary block">Request a new link</RouterLink>
+        <RouterLink v-if="meta.data.value?.email_login_enabled !== false" to="/login/email" class="btn primary block">Request a new link</RouterLink>
         <RouterLink to="/login" class="btn block">Back to login</RouterLink>
       </div>
     </div>
@@ -20,11 +20,13 @@
 import { computed, ref, onMounted } from 'vue'
 import { useRouter, useRoute, RouterLink } from 'vue-router'
 import AuthShell from '../components/AuthShell.vue'
+import { useInstanceMeta } from '../composables/useInstanceMeta'
 import { api, setToken } from '../lib/api'
 import { ApiError } from '../types'
 
 const router = useRouter()
 const route = useRoute()
+const meta = useInstanceMeta()
 const error = ref('')
 const loading = ref(true)
 const heading = computed(() => (error.value ? 'Invalid link' : 'Verifying...'))
