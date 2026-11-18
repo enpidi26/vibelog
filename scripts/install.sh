@@ -7,6 +7,7 @@
 #   VIBELOG_VERSION=1.2.3     pasang versi tertentu (default: release terbaru)
 #   VIBELOG_REPO=owner/repo   sumber release
 #   VIBELOG_BASE_URL=...      mirror unduhan (opsional)
+#   VIBELOG_DRY_RUN=1         unduh + verifikasi checksum saja, tanpa mengubah sistem
 #
 # Script ini tidak menimpa database atau /etc/vibelog/vibelog.env yang sudah
 # ada, jadi aman dijalankan ulang untuk upgrade.
@@ -20,7 +21,10 @@ SERVICE_NAME="vibelog"
 
 die() { echo "error: $*" >&2; exit 1; }
 
-[ "$(id -u)" -eq 0 ] || die "jalankan sebagai root: sudo bash scripts/install.sh"
+DRY_RUN="${VIBELOG_DRY_RUN:-0}"
+if [ "$DRY_RUN" != "1" ] && [ "$(id -u)" -ne 0 ]; then
+  die "jalankan sebagai root: sudo bash scripts/install.sh"
+fi
 command -v curl >/dev/null || die "curl tidak ditemukan"
 command -v tar >/dev/null || die "tar tidak ditemukan"
 command -v sha256sum >/dev/null || die "sha256sum tidak ditemukan"
@@ -56,11 +60,19 @@ curl -fsSL "$BASE/$ASSET" -o "$TMP/$ASSET"
 curl -fsSL "$BASE/checksums.txt" -o "$TMP/checksums.txt"
 (
   cd "$TMP"
-  grep -F " $ASSET" checksums.txt | sha256sum -c - >/dev/null
+  grep -F "$ASSET" checksums.txt > checksums.selected
+  [ -s checksums.selected ] || die "checksum untuk ${ASSET} tidak ditemukan"
+  sha256sum -c checksums.selected >/dev/null
 ) || die "checksum ${ASSET} tidak cocok; unduhan dibatalkan"
 
 tar -xzf "$TMP/$ASSET" -C "$TMP"
 [ -f "$TMP/vibelog" ] || die "arsip tidak berisi binary vibelog"
+
+if [ "$DRY_RUN" = "1" ]; then
+  echo "dry-run: checksum dan arsip valid; tidak ada perubahan pada sistem"
+  exit 0
+fi
+
 install -m 0755 "$TMP/vibelog" "$BIN_DIR/vibelog"
 
 if ! id -u vibelog >/dev/null 2>&1; then
