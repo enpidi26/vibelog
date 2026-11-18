@@ -1,5 +1,5 @@
 <template>
-  <AuthShell title="Verifying..." subtitle="Please wait while we sign you in.">
+  <AuthShell :title="heading" :subtitle="subtitle">
     <div class="verify-status">
       <div v-if="loading" class="loading">
         <div class="spinner"></div>
@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter, useRoute, RouterLink } from 'vue-router'
 import AuthShell from '../components/AuthShell.vue'
 import { api, setToken } from '../lib/api'
@@ -27,6 +27,10 @@ const router = useRouter()
 const route = useRoute()
 const error = ref('')
 const loading = ref(true)
+const heading = computed(() => (error.value ? 'Invalid link' : 'Verifying...'))
+const subtitle = computed(() =>
+  error.value ? 'This sign-in link cannot be used.' : 'Please wait while we sign you in.',
+)
 
 onMounted(async () => {
   const token = route.query.token as string | undefined
