@@ -20,7 +20,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute, RouterLink } from 'vue-router'
 import AuthShell from '../components/AuthShell.vue'
-import { apiCall } from '../lib/api'
+import { api, setToken } from '../lib/api'
 import { ApiError } from '../types'
 
 const router = useRouter()
@@ -29,8 +29,8 @@ const error = ref('')
 const loading = ref(true)
 
 onMounted(async () => {
-  const token = route.query.token as string
-  
+  const token = route.query.token as string | undefined
+
   if (!token) {
     error.value = 'No verification token found in URL'
     loading.value = false
@@ -38,15 +38,10 @@ onMounted(async () => {
   }
 
   try {
-    const data = await apiCall(`/api/auth/email/verify?token=${encodeURIComponent(token)}`, {
-      method: 'GET',
-    })
-    
-    // Store token in localStorage
-    localStorage.setItem('token', data.token)
-    
-    // Redirect to app
-    await router.push('/app')
+    const data = await api.verifyMagicLink(token)
+    setToken(data.token)
+    // Replace so the token never lingers in browser history.
+    await router.replace('/app')
   } catch (e) {
     error.value = e instanceof ApiError ? e.message : 'Failed to verify magic link. The link may have expired.'
     loading.value = false

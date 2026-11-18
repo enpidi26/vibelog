@@ -25,15 +25,16 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useCountUp } from '../composables/useCountUp'
 import type { Summary } from '../types'
 
 const props = defineProps<{ summary?: Summary; loading: boolean }>()
 
-const total = useCountUp(props.summary?.total ?? 0)
-const success = useCountUp(props.summary?.success ?? 0)
-const partial = useCountUp(props.summary?.partial ?? 0)
-const failed = useCountUp(props.summary?.failed ?? 0)
+const total = useCountUp(computed(() => props.summary?.total ?? 0))
+const success = useCountUp(computed(() => props.summary?.success ?? 0))
+const partial = useCountUp(computed(() => props.summary?.partial ?? 0))
+const failed = useCountUp(computed(() => props.summary?.failed ?? 0))
 </script>
 
 <style scoped>

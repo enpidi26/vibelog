@@ -9,7 +9,7 @@ echo "🚀 Deploying VibeLog to Coolify..."
 # Clone repository ke temporary directory
 TEMP_DIR="/tmp/vibelog-deploy-$(date +%s)"
 echo "📦 Cloning repository..."
-git clone -b feat/animasi-ui https://github.com/enpidi26/vibelog.git "$TEMP_DIR"
+git clone -b main https://github.com/enpidi26/vibelog.git "$TEMP_DIR"
 cd "$TEMP_DIR"
 
 # Generate JWT Secret
@@ -24,7 +24,7 @@ PORT=8080
 DATABASE_PATH=/data/vibelog.db
 JWT_SECRET=$JWT_SECRET
 JWT_EXPIRY_HOURS=24
-FRONTEND_URL=http://201.79.105.137
+FRONTEND_URL=http://localhost:8090
 EOF
 
 echo "✅ Created .env file"
@@ -36,7 +36,7 @@ docker compose up -d --build
 echo ""
 echo "✅ Deployment complete!"
 echo ""
-echo "📋 Access your app at: http://201.79.105.137"
+echo "📋 Access your app at: http://localhost:8090"
 echo ""
 echo "🔑 Your JWT_SECRET (save this securely):"
 echo "$JWT_SECRET"

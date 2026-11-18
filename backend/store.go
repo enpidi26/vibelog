@@ -67,17 +67,17 @@ type CountItem struct {
 }
 
 type Summary struct {
-	Total        int         `json:"total"`
-	Success      int         `json:"success"`
-	Partial      int         `json:"partial"`
-	Failed       int         `json:"failed"`
-	InProgress   int         `json:"in_progress"`
-	AverageRating *float64   `json:"average_rating"`
-	RatedCount   int         `json:"rated_count"`
-	ByModel      []CountItem `json:"by_model"`
-	ByTool       []CountItem `json:"by_tool"`
-	ByProject    []CountItem `json:"by_project"`
-	TopTags      []CountItem `json:"top_tags"`
+	Total         int         `json:"total"`
+	Success       int         `json:"success"`
+	Partial       int         `json:"partial"`
+	Failed        int         `json:"failed"`
+	InProgress    int         `json:"in_progress"`
+	AverageRating *float64    `json:"average_rating"`
+	RatedCount    int         `json:"rated_count"`
+	ByModel       []CountItem `json:"by_model"`
+	ByTool        []CountItem `json:"by_tool"`
+	ByProject     []CountItem `json:"by_project"`
+	TopTags       []CountItem `json:"top_tags"`
 }
 
 var ErrNotFound = errors.New("tidak ditemukan")

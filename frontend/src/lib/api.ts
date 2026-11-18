@@ -81,6 +81,15 @@ export const api = {
   me(): Promise<User> {
     return request<User>('/api/auth/me')
   },
+  requestMagicLink(email: string): Promise<{ message: string }> {
+    return request<{ message: string }>('/api/auth/email/request', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    })
+  },
+  verifyMagicLink(token: string): Promise<AuthResponse> {
+    return request<AuthResponse>(`/api/auth/email/verify?token=${encodeURIComponent(token)}`)
+  },
   listProjects(): Promise<Project[]> {
     return request<Project[]>('/api/projects')
   },

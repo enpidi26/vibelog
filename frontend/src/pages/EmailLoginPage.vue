@@ -27,7 +27,7 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AuthShell from '../components/AuthShell.vue'
-import { apiCall } from '../lib/api'
+import { api } from '../lib/api'
 import { ApiError } from '../types'
 
 const email = ref('')
@@ -39,10 +39,7 @@ async function onSubmit() {
   error.value = ''
   loading.value = true
   try {
-    await apiCall('/api/auth/email/request', {
-      method: 'POST',
-      body: JSON.stringify({ email: email.value.trim() }),
-    })
+    await api.requestMagicLink(email.value.trim())
     sent.value = true
   } catch (e) {
     error.value = e instanceof ApiError ? e.message : 'Failed to send magic link. Please try again.'

@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -11,18 +12,19 @@ import (
 // Config dibaca dari environment. Nilai default hanya aman untuk development
 // lokal; mode production menolak secret default (lihat Validate).
 type Config struct {
-	Env               string
-	Host              string
-	Port              string
-	DatabasePath      string
-	JWTSecret         string
-	JWTExpiryHrs      int
-	FrontendURL       string
+	Env                string
+	Host               string
+	Port               string
+	DatabasePath       string
+	JWTSecret          string
+	JWTExpiryHrs       int
+	FrontendURL        string
 	AuthRateLimit      int
 	APIRateLimit       int
 	GitHubClientID     string
 	GitHubClientSecret string
 	ResendAPIKey       string
+	TrustedProxies     []*net.IPNet
 }
 
 const devJWTSecret = "dev-only-secret-change-me-in-production"
@@ -53,6 +55,7 @@ func LoadConfig() Config {
 		GitHubClientID:     strings.TrimSpace(os.Getenv("GITHUB_CLIENT_ID")),
 		GitHubClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
 		ResendAPIKey:       strings.TrimSpace(os.Getenv("RESEND_API_KEY")),
+		TrustedProxies:     ParseTrustedProxies(envOr("TRUSTED_PROXIES", "127.0.0.1/32,::1/128")),
 	}
 }
 

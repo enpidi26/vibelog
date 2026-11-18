@@ -79,7 +79,7 @@ func (s *server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "internal_error", "failed to sign in")
 		return
 	}
-	
+
 	token, err := IssueToken(s.cfg.EffectiveJWTSecret(), user.ID, user.Email, user.Name, s.cfg.JWTExpiryHrs)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal_error", "failed to create token")

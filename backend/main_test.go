@@ -239,7 +239,8 @@ func TestSummaryEmptyUser(t *testing.T) {
 	}
 }
 
-func TestBuildMarkdownEscapesFence(t *testing.T) {	md := BuildMarkdown([]Entry{{Title: "T", Model: "M", Tool: "X", Outcome: "success", IterationNo: 1, PromptText: "a ``` b"}})
+func TestBuildMarkdownEscapesFence(t *testing.T) {
+	md := BuildMarkdown([]Entry{{Title: "T", Model: "M", Tool: "X", Outcome: "success", IterationNo: 1, PromptText: "a ``` b"}})
 	if strings.Contains(md, "a ``` b") {
 		t.Fatal("fence di dalam prompt harus diamankan")
 	}

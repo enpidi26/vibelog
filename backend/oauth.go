@@ -109,7 +109,7 @@ func (s *server) handleGithubCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Find or create the local user.
-		user, err := GetUserByEmail(s.db, email)
+	user, err := GetUserByEmail(s.db, email)
 	if errors.Is(err, ErrNotFound) {
 		// Random secret as password: OAuth users never sign in with a password.
 		secret, _ := randomToken()

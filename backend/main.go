@@ -52,8 +52,8 @@ func newServer(cfg Config, db *sql.DB) *server {
 	return &server{
 		cfg:       cfg,
 		db:        db,
-		authLimit: NewRateLimiter(cfg.AuthRateLimit, time.Minute),
-		apiLimit:  NewRateLimiter(cfg.APIRateLimit, time.Minute),
+		authLimit: NewRateLimiter(cfg.AuthRateLimit, time.Minute, cfg.TrustedProxies),
+		apiLimit:  NewRateLimiter(cfg.APIRateLimit, time.Minute, cfg.TrustedProxies),
 	}
 }
 
