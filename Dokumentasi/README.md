@@ -4,7 +4,7 @@
 
 VibeLog adalah aplikasi web untuk menyimpan prompt persis seperti yang dikirim ke AI, mencatat model dan tool yang dipakai, menilai hasilnya, lalu membuat iterasi berikutnya dalam satu klik. Entri yang sudah terfilter dapat diekspor menjadi prompt pack Markdown atau JSON untuk dipakai ulang di AI agent maupun editor.
 
-Status: prototipe versi 1.0, dalam pengembangan aktif.
+Status: siap self-host (satu container, SQLite). Cloud berbayar direncanakan terpisah.
 Semua data pada screenshot adalah data demo dari akun fiktif, bukan data pengguna asli.
 
 ---
@@ -41,7 +41,7 @@ VibeLog menyatukan pencatatan prompt, penilaian hasil, dan ekspor dalam satu alu
 **Autentikasi**
 - Registrasi dan login dengan email dan password. Password di-hash dengan bcrypt.
 - Login GitHub OAuth dengan verifikasi state untuk mencegah CSRF.
-- Login magic link lewat email (Resend), token sekali pakai dengan masa berlaku 15 menit.
+- Login magic link lewat email (console, SMTP, atau Resend), token sekali pakai dengan masa berlaku 15 menit dan hanya tautan terbaru yang aktif.
 - Sesi JWT disimpan di browser dan dipulihkan saat aplikasi dibuka kembali.
 
 **Proyek**
@@ -83,7 +83,7 @@ VibeLog menyatukan pencatatan prompt, penilaian hasil, dan ekspor dalam satu alu
 | Frontend | Vue 3, TypeScript, Vite, Vue Router, TanStack Query |
 | Backend | Go (standard library), REST API, JWT HS256 |
 | Database | SQLite (WAL, foreign key aktif) |
-| Email | Resend API untuk magic link |
+| Email | console, SMTP, atau Resend untuk magic link |
 | OAuth | GitHub OAuth App |
 | Deployment | Docker Compose (Go + nginx), Vercel untuk frontend |
 
@@ -132,7 +132,7 @@ Error selalu berbentuk `{"error":{"code":"...","message":"..."}}`.
 - JWT memakai algoritma HS256 yang dikunci, issuer tetap, dan masa berlaku terbatas.
 - Mode production menolak `JWT_SECRET` kosong, default, atau kurang dari 32 karakter.
 - CORS hanya mengizinkan origin frontend yang dikonfigurasi.
-- Security header: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Cache-Control`.
+- Security header: CSP, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Cache-Control`.
 - Rate limit untuk endpoint autentikasi dan API.
 - Body JSON dibatasi 1 MB dan field yang tidak dikenal ditolak.
 - Isolasi data per user diuji, termasuk percobaan akses lintas akun.
@@ -141,7 +141,7 @@ Error selalu berbentuk `{"error":{"code":"...","message":"..."}}`.
 
 - SQLite ditujukan untuk satu instance. Untuk multi-instance perlu Postgres/MySQL atau layanan SQLite terkelola.
 - Rate limiter masih disimpan di memori per proses.
-- Magic link membutuhkan `RESEND_API_KEY` dan domain terverifikasi di Resend.
+- Magic link memakai `EMAIL_DRIVER=console` (tautan di log), SMTP sendiri, atau Resend. Tidak ada layanan email yang wajib.
 - Login GitHub membutuhkan callback HTTPS yang terdaftar di GitHub OAuth App.
 - Belum ada fitur ubah password, lupa password, atau pengaturan profil.
 
@@ -151,10 +151,10 @@ Prasyarat: Go 1.24+, Node.js 20+, dan gcc untuk driver SQLite.
 
 ```bash
 ./scripts/run.sh
-# Buka http://127.0.0.1:4173
+# Buka http://127.0.0.1:8080
 ```
 
-Variabel environment utama: `APP_ENV`, `HOST`, `PORT`, `DATABASE_PATH`, `JWT_SECRET`, `JWT_EXPIRY_HOURS`, `FRONTEND_URL`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `RESEND_API_KEY`.
+Variabel environment utama: `APP_ENV`, `BASE_URL`, `HOST`, `PORT`, `DATABASE_PATH`, `JWT_SECRET`, `JWT_EXPIRY_HOURS`, `ALLOW_REGISTRATION`, `EMAIL_DRIVER`, `SMTP_*`, `RESEND_API_KEY`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`. Panduan lengkap: `docs/SELF_HOST.md`.
 
 ---
 

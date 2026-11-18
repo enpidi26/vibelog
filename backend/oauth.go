@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // ---- GitHub OAuth ----
@@ -41,10 +42,11 @@ func (s *server) handleGithubLogin(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		MaxAge:   600,
 		HttpOnly: true,
+		Secure:   s.cfg.BaseURLIsHTTPS(),
 		SameSite: http.SameSiteLaxMode,
 	})
 
-	redirectURI := s.cfg.FrontendURL + "/api/auth/github/callback"
+	redirectURI := s.cfg.BaseURL + "/api/auth/github/callback"
 	q := url.Values{}
 	q.Set("client_id", s.cfg.GitHubClientID)
 	q.Set("redirect_uri", redirectURI)
@@ -63,7 +65,7 @@ func (s *server) handleGithubCallback(w http.ResponseWriter, r *http.Request) {
 	// Verify state to protect against CSRF.
 	cookie, err := r.Cookie(oauthStateCookie)
 	if err != nil || cookie.Value == "" || cookie.Value != r.URL.Query().Get("state") {
-		redirectWithAuthError(w, r, s.cfg.FrontendURL, "OAuth state validation failed. Please try again.")
+		redirectWithAuthError(w, r, s.cfg.BaseURL, "OAuth state validation failed. Please try again.")
 		return
 	}
 	// State is single-use.
@@ -73,33 +75,34 @@ func (s *server) handleGithubCallback(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		MaxAge:   -1,
 		HttpOnly: true,
+		Secure:   s.cfg.BaseURLIsHTTPS(),
 		SameSite: http.SameSiteLaxMode,
 	})
 
 	code := r.URL.Query().Get("code")
 	if code == "" {
-		redirectWithAuthError(w, r, s.cfg.FrontendURL, "GitHub did not return an authorization code.")
+		redirectWithAuthError(w, r, s.cfg.BaseURL, "GitHub did not return an authorization code.")
 		return
 	}
 
-	accessToken, err := exchangeGithubCode(s.cfg.GitHubClientID, s.cfg.GitHubClientSecret, code, s.cfg.FrontendURL+"/api/auth/github/callback")
+	accessToken, err := exchangeGithubCode(s.cfg.GitHubClientID, s.cfg.GitHubClientSecret, code, s.cfg.BaseURL+"/api/auth/github/callback")
 	if err != nil {
 		fmt.Printf("github oauth: exchange code failed: %v\n", err)
-		redirectWithAuthError(w, r, s.cfg.FrontendURL, "Failed to sign in with GitHub. Please try again.")
+		redirectWithAuthError(w, r, s.cfg.BaseURL, "Failed to sign in with GitHub. Please try again.")
 		return
 	}
 
 	ghUser, err := fetchGithubUser(accessToken)
 	if err != nil {
 		fmt.Printf("github oauth: fetch user failed: %v\n", err)
-		redirectWithAuthError(w, r, s.cfg.FrontendURL, "Failed to load your GitHub profile. Please try again.")
+		redirectWithAuthError(w, r, s.cfg.BaseURL, "Failed to load your GitHub profile. Please try again.")
 		return
 	}
 
 	email, err := fetchGithubPrimaryEmail(accessToken)
 	if err != nil || email == "" {
 		fmt.Printf("github oauth: no verified email for %s: %v\n", ghUser.Login, err)
-		redirectWithAuthError(w, r, s.cfg.FrontendURL, "Your GitHub account has no verified email. Please add one on GitHub, then try again.")
+		redirectWithAuthError(w, r, s.cfg.BaseURL, "Your GitHub account has no verified email. Please add one on GitHub, then try again.")
 		return
 	}
 
@@ -111,6 +114,10 @@ func (s *server) handleGithubCallback(w http.ResponseWriter, r *http.Request) {
 	// Find or create the local user.
 	user, err := GetUserByEmail(s.db, email)
 	if errors.Is(err, ErrNotFound) {
+		if !s.cfg.AllowRegistration {
+			redirectWithAuthError(w, r, s.cfg.BaseURL, "Registration is closed on this instance.")
+			return
+		}
 		// Random secret as password: OAuth users never sign in with a password.
 		secret, _ := randomToken()
 		hash, herr := HashPassword(secret)
@@ -132,6 +139,13 @@ func (s *server) handleGithubCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Email GitHub sudah terverifikasi, jadi tandai terverifikasi juga di sini.
+	if !user.EmailVerified {
+		if err := MarkEmailVerified(s.db, user.ID); err == nil {
+			user.EmailVerified = true
+		}
+	}
+
 	token, err := IssueToken(s.cfg.EffectiveJWTSecret(), user.ID, user.Email, user.Name, s.cfg.JWTExpiryHrs)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal_error", "failed to create token")
@@ -141,7 +155,7 @@ func (s *server) handleGithubCallback(w http.ResponseWriter, r *http.Request) {
 	// Hand the JWT to the frontend callback page.
 	q := url.Values{}
 	q.Set("token", token)
-	http.Redirect(w, r, s.cfg.FrontendURL+"/auth/github/callback?"+q.Encode(), http.StatusFound)
+	http.Redirect(w, r, s.cfg.BaseURL+"/auth/github/callback?"+q.Encode(), http.StatusFound)
 }
 
 func redirectWithAuthError(w http.ResponseWriter, r *http.Request, base, msg string) {
@@ -151,20 +165,20 @@ func redirectWithAuthError(w http.ResponseWriter, r *http.Request, base, msg str
 }
 
 func exchangeGithubCode(clientID, clientSecret, code, redirectURI string) (string, error) {
-	q := url.Values{}
-	q.Set("client_id", clientID)
-	q.Set("client_secret", clientSecret)
-	q.Set("code", code)
-	q.Set("redirect_uri", redirectURI)
+	form := url.Values{}
+	form.Set("client_id", clientID)
+	form.Set("client_secret", clientSecret)
+	form.Set("code", code)
+	form.Set("redirect_uri", redirectURI)
 
-	req, err := http.NewRequest(http.MethodPost, "https://github.com/login/oauth/access_token", nil)
+	req, err := http.NewRequest(http.MethodPost, "https://github.com/login/oauth/access_token", strings.NewReader(form.Encode()))
 	if err != nil {
 		return "", err
 	}
-	req.URL.RawQuery = q.Encode()
 	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	res, err := http.DefaultClient.Do(req)
+	res, err := httpClient.Do(req)
 	if err != nil {
 		return "", err
 	}
@@ -195,7 +209,7 @@ func githubAPIGet(token, path string) ([]byte, error) {
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Accept", "application/vnd.github+json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

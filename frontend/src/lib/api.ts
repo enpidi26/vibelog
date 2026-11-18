@@ -88,7 +88,12 @@ export const api = {
     })
   },
   verifyMagicLink(token: string): Promise<AuthResponse> {
-    return request<AuthResponse>(`/api/auth/email/verify?token=${encodeURIComponent(token)}`)
+    // POST, bukan GET: pemindai tautan di kotak masuk tidak boleh membakar
+    // token sekali pakai sebelum pemiliknya mengklik.
+    return request<AuthResponse>('/api/auth/email/verify', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    })
   },
   listProjects(): Promise<Project[]> {
     return request<Project[]>('/api/projects')

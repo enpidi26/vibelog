@@ -18,6 +18,7 @@ const userIDKey ctxKey = "userID"
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(v)
 }
@@ -87,7 +88,7 @@ func cors(cfg Config, next http.Handler) http.Handler {
 		origin := r.Header.Get("Origin")
 		// Hanya origin frontend yang dikonfigurasi yang diizinkan. Request
 		// tanpa Origin (curl, server-to-server) tetap dilayani.
-		if origin != "" && origin == cfg.FrontendURL {
+		if origin != "" && origin == cfg.BaseURL {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Vary", "Origin")
 			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
@@ -105,9 +106,48 @@ func securityHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "DENY")
-		w.Header().Set("Referrer-Policy", "no-referrer")
-		w.Header().Set("Cache-Control", "no-store")
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		w.Header().Set("Content-Security-Policy",
+			"default-src 'self'; base-uri 'self'; frame-ancestors 'none'; "+
+				"img-src 'self' data: blob:; font-src 'self'; style-src 'self' 'unsafe-inline'; "+
+				"script-src 'self'; connect-src 'self'; form-action 'self'")
 		next.ServeHTTP(w, r)
+	})
+}
+
+type statusRecorder struct {
+	http.ResponseWriter
+	status int
+}
+
+func (r *statusRecorder) WriteHeader(code int) {
+	r.status = code
+	r.ResponseWriter.WriteHeader(code)
+}
+
+func (r *statusRecorder) Write(b []byte) (int, error) {
+	if r.status == 0 {
+		r.status = http.StatusOK
+	}
+	return r.ResponseWriter.Write(b)
+}
+
+// logRequests mencatat satu baris per request API. Aset statis dan health
+// check dilewati supaya log tetap terbaca.
+func logRequests(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		p := r.URL.Path
+		if !strings.HasPrefix(p, "/api/") {
+			next.ServeHTTP(w, r)
+			return
+		}
+		start := time.Now()
+		rec := &statusRecorder{ResponseWriter: w}
+		next.ServeHTTP(rec, r)
+		if rec.status == 0 {
+			rec.status = http.StatusOK
+		}
+		log.Printf("%s %s %d %s", r.Method, p, rec.status, time.Since(start).Round(time.Millisecond))
 	})
 }
 

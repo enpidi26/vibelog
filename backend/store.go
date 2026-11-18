@@ -59,6 +59,7 @@ type EntryFilter struct {
 	Outcome   string
 	Tag       string
 	Limit     int
+	All       bool // true = tanpa LIMIT, dipakai ekspor
 }
 
 type CountItem struct {
@@ -82,7 +83,6 @@ type Summary struct {
 
 var ErrNotFound = errors.New("tidak ditemukan")
 var ErrEmailTaken = errors.New("email already registered")
-var ErrInvalidOTP = errors.New("invalid or expired OTP code")
 
 // OpenDB membuka SQLite, mengaktifkan WAL + foreign keys, dan migrasi.
 func OpenDB(path string) (*sql.DB, error) {
@@ -107,77 +107,20 @@ func OpenDB(path string) (*sql.DB, error) {
 	return db, nil
 }
 
-func migrate(db *sql.DB) error {
-	_, err := db.Exec(`
-		CREATE TABLE IF NOT EXISTS users (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			name TEXT NOT NULL,
-			email TEXT NOT NULL UNIQUE,
-			password_hash TEXT NOT NULL,
-			email_verified INTEGER NOT NULL DEFAULT 0,
-			email_verified_at TEXT,
-			created_at TEXT NOT NULL
-		);
-		CREATE TABLE IF NOT EXISTS projects (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-			name TEXT NOT NULL,
-			description TEXT NOT NULL DEFAULT '',
-			color TEXT NOT NULL DEFAULT 'teal',
-			created_at TEXT NOT NULL,
-			updated_at TEXT NOT NULL
-		);
-		CREATE TABLE IF NOT EXISTS entries (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-			project_id INTEGER REFERENCES projects(id) ON DELETE SET NULL,
-			title TEXT NOT NULL,
-			prompt_text TEXT NOT NULL,
-			model TEXT NOT NULL,
-			tool TEXT NOT NULL,
-			outcome TEXT NOT NULL,
-			rating INTEGER,
-			result_notes TEXT NOT NULL DEFAULT '',
-			tags TEXT NOT NULL DEFAULT '',
-			iteration_no INTEGER NOT NULL DEFAULT 1,
-			parent_id INTEGER REFERENCES entries(id) ON DELETE SET NULL,
-			created_at TEXT NOT NULL,
-			updated_at TEXT NOT NULL
-		);
-		CREATE TABLE IF NOT EXISTS otp_codes (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-			code TEXT NOT NULL,
-			purpose TEXT NOT NULL,
-			expires_at TEXT NOT NULL,
-			used INTEGER NOT NULL DEFAULT 0,
-			created_at TEXT NOT NULL
-		);
-		CREATE INDEX IF NOT EXISTS idx_projects_user ON projects(user_id, name);
-		CREATE INDEX IF NOT EXISTS idx_entries_user_created ON entries(user_id, created_at DESC, id DESC);
-		CREATE INDEX IF NOT EXISTS idx_entries_user_project ON entries(user_id, project_id);
-		CREATE INDEX IF NOT EXISTS idx_entries_user_outcome ON entries(user_id, outcome);
-		CREATE INDEX IF NOT EXISTS idx_otp_user_purpose ON otp_codes(user_id, purpose, expires_at);
-	`)
+func utcNow() string { return time.Now().UTC().Format(time.RFC3339Nano) }
 
-	// Migrate pre-OTP schemas: add email verification columns to users if missing.
-	var hasEmailVerified int
-	if err := db.QueryRow(`SELECT COUNT(*) FROM pragma_table_info('users') WHERE name = 'email_verified'`).Scan(&hasEmailVerified); err != nil {
-		return err
-	}
-	if hasEmailVerified == 0 {
-		if _, err := db.Exec(`ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0`); err != nil {
-			return err
-		}
-		if _, err := db.Exec(`ALTER TABLE users ADD COLUMN email_verified_at TEXT`); err != nil {
-			return err
-		}
-	}
-
-	return err
+// escapeLike meng-escape karakter khusus LIKE supaya pencarian "%", "_"
+// atau "\\" tidak berubah menjadi wildcard.
+func escapeLike(s string) string {
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, `%`, `\%`)
+	s = strings.ReplaceAll(s, `_`, `\_`)
+	return s
 }
 
-func utcNow() string { return time.Now().UTC().Format(time.RFC3339Nano) }
+func likePattern(s string) string {
+	return "%" + escapeLike(strings.ToLower(s)) + "%"
+}
 
 func parseTime(s string) time.Time {
 	t, _ := time.Parse(time.RFC3339Nano, s)
@@ -507,7 +450,7 @@ func DuplicateEntry(db *sql.DB, userID, id int64) (Entry, error) {
 
 func ListEntries(db *sql.DB, userID int64, f EntryFilter) ([]Entry, error) {
 	limit := f.Limit
-	if limit < 1 || limit > 200 {
+	if !f.All && (limit < 1 || limit > 200) {
 		limit = 100
 	}
 	query := `
@@ -540,16 +483,19 @@ func ListEntries(db *sql.DB, userID int64, f EntryFilter) ([]Entry, error) {
 	}
 	if f.Tag != "" {
 		// Tag disimpan ", " separated dan dinormalisasi huruf kecil.
-		query += " AND (',' || REPLACE(e.tags, ', ', ',') || ',' LIKE ?)"
-		args = append(args, "%,"+strings.ToLower(f.Tag)+",%")
+		query += ` AND (',' || REPLACE(e.tags, ', ', ',') || ',') LIKE ? ESCAPE '\'`
+		args = append(args, "%,"+escapeLike(strings.ToLower(f.Tag))+",%")
 	}
 	if f.Query != "" {
-		q := "%" + strings.ToLower(f.Query) + "%"
-		query += " AND (LOWER(e.title) LIKE ? OR LOWER(e.prompt_text) LIKE ? OR LOWER(e.result_notes) LIKE ? OR LOWER(e.tags) LIKE ?)"
+		q := likePattern(f.Query)
+		query += ` AND (LOWER(e.title) LIKE ? ESCAPE '\' OR LOWER(e.prompt_text) LIKE ? ESCAPE '\' OR LOWER(e.result_notes) LIKE ? ESCAPE '\' OR LOWER(e.tags) LIKE ? ESCAPE '\')`
 		args = append(args, q, q, q, q)
 	}
-	query += " ORDER BY e.created_at DESC, e.id DESC LIMIT ?"
-	args = append(args, limit)
+	query += " ORDER BY e.created_at DESC, e.id DESC"
+	if !f.All {
+		query += " LIMIT ?"
+		args = append(args, limit)
+	}
 	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
@@ -668,42 +614,7 @@ func EntrySummary(db *sql.DB, userID int64, projectID *int64) (Summary, error) {
 	return s, nil
 }
 
-// ---- OTP Management ----
-
-// CreateOTP membuat kode OTP 6 digit untuk user dan purpose tertentu.
-func CreateOTP(db *sql.DB, userID int64, code, purpose string, expiryMinutes int) error {
-	expiresAt := time.Now().UTC().Add(time.Duration(expiryMinutes) * time.Minute).Format(time.RFC3339Nano)
-	_, err := db.Exec(`INSERT INTO otp_codes (user_id, code, purpose, expires_at, created_at) VALUES (?, ?, ?, ?, ?)`,
-		userID, code, purpose, expiresAt, utcNow())
-	return err
-}
-
-// VerifyOTP memvalidasi kode OTP untuk user dan purpose tertentu.
-// Mengembalikan error jika tidak valid atau sudah kadaluarsa.
-func VerifyOTP(db *sql.DB, userID int64, code, purpose string) error {
-	var id int64
-	var expiresAt, used string
-	err := db.QueryRow(`SELECT id, expires_at, used FROM otp_codes 
-		WHERE user_id = ? AND code = ? AND purpose = ? 
-		ORDER BY created_at DESC LIMIT 1`, userID, code, purpose).
-		Scan(&id, &expiresAt, &used)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ErrInvalidOTP
-		}
-		return err
-	}
-	if used == "1" {
-		return ErrInvalidOTP
-	}
-	expiry := parseTime(expiresAt)
-	if time.Now().UTC().After(expiry) {
-		return ErrInvalidOTP
-	}
-	// Tandai sebagai sudah dipakai
-	_, err = db.Exec(`UPDATE otp_codes SET used = 1 WHERE id = ?`, id)
-	return err
-}
+// ---- Magic link tokens ----
 
 // MarkEmailVerified menandai email user sebagai terverifikasi.
 func MarkEmailVerified(db *sql.DB, userID int64) error {
@@ -712,7 +623,7 @@ func MarkEmailVerified(db *sql.DB, userID int64) error {
 	return err
 }
 
-// CleanupExpiredOTPs menghapus OTP yang sudah kadaluarsa (lebih dari 24 jam).
+// CleanupExpiredOTPs menghapus token yang sudah kadaluarsa (lebih dari 24 jam).
 func CleanupExpiredOTPs(db *sql.DB) error {
 	cutoff := time.Now().UTC().Add(-24 * time.Hour).Format(time.RFC3339Nano)
 	_, err := db.Exec(`DELETE FROM otp_codes WHERE expires_at < ?`, cutoff)

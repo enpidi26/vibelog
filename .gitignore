@@ -3,7 +3,10 @@ data/
 *.db
 *.db-wal
 *.db-shm
+backend/vibelog
 backend/vibelog-api
+backend/web/dist/*
+!backend/web/dist/.gitkeep
 frontend/node_modules/
 frontend/dist/
 .DS_Store

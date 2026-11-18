@@ -1,8 +1,11 @@
 .PHONY: build test run clean
 
 build:
-	cd backend && go build -o vibelog-api .
 	cd frontend && npm ci && npm run build
+	rm -rf backend/web/dist && mkdir -p backend/web/dist
+	cp -r frontend/dist/. backend/web/dist/
+	touch backend/web/dist/.gitkeep
+	cd backend && go build -trimpath -o vibelog .
 
 test:
 	cd backend && go test -count=1 ./...
@@ -12,5 +15,5 @@ run:
 	./scripts/run.sh
 
 clean:
-	rm -f backend/vibelog-api
+	rm -f backend/vibelog backend/vibelog-api
 	rm -rf frontend/dist frontend/node_modules

@@ -30,13 +30,13 @@ export function outcomeLabel(outcome: string): string {
 export function formatDate(iso: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
-  return d.toLocaleString('en-US', {
+  // Waktu lokal pembaca. Self-host bisa berada di zona waktu mana pun.
+  return d.toLocaleString(undefined, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-    timeZone: 'Asia/Bangkok',
   })
 }
 

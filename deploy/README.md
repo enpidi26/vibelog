@@ -1,29 +1,32 @@
 # Deploy VibeLog
 
-## Docker Compose (disarankan)
+Cara yang didukung: **satu container** yang melayani frontend + API dari port
+yang sama. Panduan lengkap ada di [`../docs/SELF_HOST.md`](../docs/SELF_HOST.md).
 
 ```bash
-cp .env.example .env
-# Isi JWT_SECRET dan FRONTEND_URL di .env, lalu:
+cp .env.example .env    # set BASE_URL
 docker compose up -d --build
+curl -fsS http://localhost:8090/health
 ```
 
-Frontend dilayani nginx di port 80, backend di port 8080 di dalam jaringan
-Compose. Data SQLite disimpan di volume `vibelog-data` (`/data/vibelog.db`).
-Cadangkan volume itu secara berkala.
+Data persisten ada di volume `vibelog-data` (`/data`). Backup:
 
-## nginx di VPS (tanpa Docker)
+```bash
+docker compose exec vibelog vibelog backup /data/backups
+```
 
-1. Build backend (`go build`) dan frontend (`npm run build`).
-2. Jalankan backend sebagai service systemd dengan environment production.
-3. Salin `deploy/nginx-vibelog.conf` ke konfigurasi nginx, ganti
-   `vibelog.example.com` dengan domain sebenarnya, dan aktifkan HTTPS
-   (misalnya dengan Certbot) sebelum dipakai publik.
-4. Arahkan root nginx ke folder `frontend/dist`, dan proxy `/api` serta
-   `/health` ke backend.
+## Reverse proxy
 
-## Variabel production yang wajib benar
+`nginx-vibelog.conf` adalah contoh nginx dengan TLS yang meneruskan semua
+request ke container di `127.0.0.1:8090`. Setelah proxy aktif, isi
+`BASE_URL=https://domain-kamu` dan `TRUSTED_PROXIES` dengan alamat proxy.
 
-`APP_ENV=production`, `JWT_SECRET` minimal 32 karakter, `FRONTEND_URL`
-sama persis dengan origin browser (termasuk https dan tanpa trailing slash),
-dan `DATABASE_PATH` ke lokasi yang persisten dan tercadangkan.
+## Tanpa Docker
+
+```bash
+make build
+APP_ENV=production BASE_URL=https://vibelog.example.com \
+DATABASE_PATH=/var/lib/vibelog/vibelog.db ./backend/vibelog
+```
+
+Jalankan sebagai service systemd, lalu taruh nginx/Caddy di depannya.

@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -16,13 +18,29 @@ type server struct {
 	db        *sql.DB
 	authLimit *RateLimiter
 	apiLimit  *RateLimiter
+	mailer    Mailer
+	static    http.Handler
 }
 
 func (s *server) handleHealth(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]any{"status": "ok", "service": "vibelog-api"})
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	defer cancel()
+	if err := s.db.PingContext(ctx); err != nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]any{"status": "unavailable", "db": "error"})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"status": "ok", "service": "vibelog", "db": "ok"})
+}
+
+func (s *server) handleLive(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, map[string]any{"status": "ok"})
 }
 
 func (s *server) handleRegister(w http.ResponseWriter, r *http.Request) {
+	if !s.cfg.AllowRegistration {
+		writeError(w, http.StatusForbidden, "registration_closed", "Registration is closed on this instance.")
+		return
+	}
 	var in RegisterInput
 	if !decodeJSON(w, r, &in) {
 		return
@@ -69,14 +87,19 @@ func (s *server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user, err := GetUserByEmail(s.db, in.Email)
-	if errors.Is(err, ErrNotFound) || !CheckPassword(in.Password, user.PasswordHash) {
+	if errors.Is(err, ErrNotFound) {
 		// Pesan sama untuk email tidak ada dan password salah, supaya
 		// penyerang tidak bisa menebak akun yang terdaftar.
 		writeError(w, http.StatusUnauthorized, "invalid_credentials", "incorrect email or password")
 		return
 	}
 	if err != nil {
+		log.Printf("login: lookup user: %v", err)
 		writeError(w, http.StatusInternalServerError, "internal_error", "failed to sign in")
+		return
+	}
+	if !CheckPassword(in.Password, user.PasswordHash) {
+		writeError(w, http.StatusUnauthorized, "invalid_credentials", "incorrect email or password")
 		return
 	}
 
@@ -344,7 +367,11 @@ func (s *server) handleExport(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "validation_error", "format harus md atau json")
 		return
 	}
-	entries, err := ListEntries(s.db, userIDFromContext(r.Context()), entryFilterFromQuery(r))
+	entries, err := ListEntries(s.db, userIDFromContext(r.Context()), func() EntryFilter {
+		f := entryFilterFromQuery(r)
+		f.All = true // ekspor harus memuat seluruh riwayat, bukan 100 terbaru
+		return f
+	}())
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal_error", "gagal mengekspor entri")
 		return
