@@ -102,7 +102,8 @@ Instal di Linux (release terbaru, otomatis membuat service systemd):
 
 ```bash
 curl -fsSLO https://raw.githubusercontent.com/enpidi26/vibelog/main/scripts/install.sh
-less install.sh          # periksa dulu
+less install.sh                     # periksa dulu
+VIBELOG_DRY_RUN=1 bash install.sh   # unduh + cek checksum saja
 sudo bash install.sh
 ```
 

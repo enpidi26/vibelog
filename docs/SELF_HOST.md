@@ -18,6 +18,7 @@ volume, satu port. Tidak ada layanan eksternal yang wajib.
 ```bash
 curl -fsSLO https://raw.githubusercontent.com/enpidi26/vibelog/main/scripts/install.sh
 less install.sh
+VIBELOG_DRY_RUN=1 bash install.sh   # unduh + cek checksum saja
 sudo bash install.sh
 ```
 

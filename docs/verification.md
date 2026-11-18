@@ -59,9 +59,11 @@ Dijalankan dengan `APP_ENV=production`, database kosong, tanpa `JWT_SECRET`:
   `docker compose up -d --build`.
 - **CI GitHub Actions sudah hijau** di Ubuntu (Go 1.26, Node 22,
   `CGO_ENABLED=0`): typecheck, build frontend, `go vet`, dan 23 test lolos.
-- **Release binary dan `scripts/install.sh` belum dijalankan end-to-end.**
-  Release workflow baru aktif saat tag `v*` di-push; `install.sh` butuh Linux
-  dengan systemd dan akun root, yang tidak tersedia di mesin ini.
+- **Release sudah dibuat dan workflow-nya hijau.** Tag `v1.0.0` dan `v1.0.1`
+  menghasilkan binary linux amd64/arm64, macOS, Windows, plus checksums.
+  `install.sh` diuji dari release sungguhan dengan `VIBELOG_DRY_RUN=1`:
+  unduhan, checksum, dan ekstraksi lolos. Langkah `useradd` + systemd belum
+  dijalankan karena mesin ini bukan Linux/root; itu bagian standar systemd.
 - **SMTP dan Resend tidak diuji ke server sungguhan.** Kode memakai
   `net/smtp` (STARTTLS/implicit) dan Resend API; yang diuji adalah jalur
   `console` dan `off`.
