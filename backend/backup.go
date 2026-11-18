@@ -32,7 +32,7 @@ func runBackup(args []string) error {
 	}
 
 	dest := filepath.Join(dir, "vibelog-"+time.Now().Format("20060102-150405")+".db")
-	db, err := sql.Open("sqlite3", cfg.DatabasePath+"?_busy_timeout=5000")
+	db, err := sql.Open("sqlite", sqliteDSN(cfg.DatabasePath))
 	if err != nil {
 		return err
 	}

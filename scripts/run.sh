@@ -34,7 +34,7 @@ cp -r frontend/dist/. backend/web/dist/
 touch backend/web/dist/.gitkeep
 
 echo "Membangun backend..."
-(cd backend && go build -trimpath -o vibelog .)
+(cd backend && CGO_ENABLED=0 go build -trimpath -o vibelog .)
 
 echo ""
 echo "VibeLog berjalan di ${BASE_URL}"

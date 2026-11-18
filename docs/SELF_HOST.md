@@ -5,12 +5,40 @@ volume, satu port. Tidak ada layanan eksternal yang wajib.
 
 ## 1. Kebutuhan
 
+- Linux dengan systemd (disarankan), atau
 - Docker 24+ dan Docker Compose v2, atau
-- Go 1.24+ (CGO), Node.js 20+, gcc bila ingin build tanpa Docker.
+- Go 1.26+ dan Node.js 22+ bila build dari source.
 - 256 MB RAM dan 1 GB disk sudah cukup untuk pemakaian pribadi.
 - Domain + HTTPS bila instance dibuka ke internet.
 
 ## 2. Instalasi
+
+### Binary + systemd (tanpa Docker)
+
+```bash
+curl -fsSLO https://raw.githubusercontent.com/enpidi26/vibelog/main/scripts/install.sh
+less install.sh
+sudo bash install.sh
+```
+
+Script memasang binary dari release terbaru, memverifikasi checksum, membuat
+user `vibelog`, direktori data `/var/lib/vibelog`, konfigurasi
+`/etc/vibelog/vibelog.env`, dan unit systemd `vibelog`. Aman dijalankan
+ulang untuk upgrade; database dan env yang sudah ada tidak ditimpa.
+
+```bash
+sudo nano /etc/vibelog/vibelog.env   # BASE_URL
+sudo systemctl restart vibelog
+journalctl -u vibelog -f
+```
+
+Tanpa systemd, jalankan binary langsung:
+
+```bash
+APP_ENV=production BASE_URL=http://localhost:8080 DATABASE_PATH=/var/lib/vibelog/vibelog.db vibelog
+```
+
+### Docker (opsional)
 
 ```bash
 git clone https://github.com/enpidi26/vibelog.git

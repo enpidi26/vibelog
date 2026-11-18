@@ -1,0 +1,109 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+          - goos: windows
+            goarch: amd64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Embed frontend
+        run: |
+          rm -rf backend/web/dist
+          mkdir -p backend/web/dist
+          cp -r frontend/dist/. backend/web/dist/
+          touch backend/web/dist/.gitkeep
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+
+      - name: Build and package
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          set -eu
+          VERSION="${GITHUB_REF_NAME#v}"
+          mkdir -p dist
+          BIN=vibelog
+          if [ "$GOOS" = "windows" ]; then BIN=vibelog.exe; fi
+          (
+            cd backend
+            CGO_ENABLED=0 GOOS="$GOOS" GOARCH="$GOARCH" go build \
+              -trimpath \
+              -ldflags "-s -w -X main.version=${GITHUB_REF_NAME}" \
+              -o "../dist/${BIN}" .
+          )
+          cp README.md LICENSE dist/
+          if [ "$GOOS" = "windows" ]; then
+            (
+              cd dist
+              zip -q "vibelog_${VERSION}_${GOOS}_${GOARCH}.zip" "$BIN" README.md LICENSE
+            )
+          else
+            tar -czf "dist/vibelog_${VERSION}_${GOOS}_${GOARCH}.tar.gz" \
+              -C dist "$BIN" README.md LICENSE
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vibelog_${{ matrix.goos }}_${{ matrix.goarch }}
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: release
+          merge-multiple: true
+
+      - name: Checksums
+        run: |
+          cd release
+          sha256sum *.tar.gz *.zip > checksums.txt
+          cat checksums.txt
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          generate_release_notes: true

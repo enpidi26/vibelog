@@ -1,5 +1,5 @@
-# VibeLog: frontend di-embed ke dalam binary Go, jadi hasilnya satu image
-# (satu port, satu volume, tanpa nginx).
+# VibeLog: frontend di-embed ke dalam binary Go. Binary murni-Go (tanpa CGO),
+# jadi hasilnya satu image kecil: satu port, satu volume, tanpa nginx.
 FROM node:22-bookworm-slim AS web-build
 WORKDIR /src
 COPY frontend/package.json frontend/package-lock.json* ./
@@ -7,20 +7,19 @@ RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-FROM golang:1.24-bookworm AS api-build
+FROM golang:1.26-alpine AS api-build
 WORKDIR /src
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 COPY backend/ ./
 COPY --from=web-build /src/dist ./web/dist
 ARG VERSION=dev
-RUN CGO_ENABLED=1 go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" -o /out/vibelog .
+RUN CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" -o /out/vibelog .
 
-FROM debian:bookworm-slim
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates wget \
-    && rm -rf /var/lib/apt/lists/* \
-    && useradd --system --uid 10001 --home-dir /data --shell /usr/sbin/nologin vibelog \
+FROM alpine:3.22
+RUN apk add --no-cache ca-certificates \
+    && addgroup -S -g 10001 vibelog \
+    && adduser -S -D -H -u 10001 -G vibelog -h /data vibelog \
     && mkdir -p /data \
     && chown vibelog:vibelog /data
 

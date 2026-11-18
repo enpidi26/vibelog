@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 type User struct {
@@ -84,6 +84,12 @@ type Summary struct {
 var ErrNotFound = errors.New("tidak ditemukan")
 var ErrEmailTaken = errors.New("email already registered")
 
+// sqliteDSN memakai driver SQLite murni-Go. Tanpa CGO, binary bisa
+// di-cross-compile dan tidak butuh gcc di mesin self-host.
+func sqliteDSN(path string) string {
+	return "file:" + filepath.ToSlash(path) + "?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=foreign_keys(1)"
+}
+
 // OpenDB membuka SQLite, mengaktifkan WAL + foreign keys, dan migrasi.
 func OpenDB(path string) (*sql.DB, error) {
 	if dir := filepath.Dir(path); dir != "." && dir != "" {
@@ -91,7 +97,7 @@ func OpenDB(path string) (*sql.DB, error) {
 			return nil, err
 		}
 	}
-	db, err := sql.Open("sqlite3", path+"?_journal_mode=WAL&_foreign_keys=ON&_busy_timeout=5000")
+	db, err := sql.Open("sqlite", sqliteDSN(path))
 	if err != nil {
 		return nil, err
 	}

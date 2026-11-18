@@ -5,10 +5,10 @@ build:
 	rm -rf backend/web/dist && mkdir -p backend/web/dist
 	cp -r frontend/dist/. backend/web/dist/
 	touch backend/web/dist/.gitkeep
-	cd backend && go build -trimpath -o vibelog .
+	cd backend && CGO_ENABLED=0 go build -trimpath -o vibelog .
 
 test:
-	cd backend && go test -count=1 ./...
+	cd backend && CGO_ENABLED=0 go test -count=1 ./...
 	cd frontend && npm ci && npm run typecheck
 
 run:

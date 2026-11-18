@@ -60,7 +60,7 @@ func TestMigrationsAreVersionedAndIdempotent(t *testing.T) {
 		db.Close()
 	}
 
-	db, err := sql.Open("sqlite3", path)
+	db, err := sql.Open("sqlite", sqliteDSN(path))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -363,5 +363,36 @@ func TestTagFilterTreatsUnderscoreLiterally(t *testing.T) {
 	_ = json.Unmarshal(rec.Body.Bytes(), &listed)
 	if len(listed) != 1 || len(listed[0].Tags) != 1 || listed[0].Tags[0] != "vibe_coding" {
 		t.Fatalf("underscore must be literal, got %+v", listed)
+	}
+}
+
+func TestDatabasePragmas(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "pragmas.db")
+	db, err := OpenDB(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	var mode string
+	if err := db.QueryRow(`PRAGMA journal_mode`).Scan(&mode); err != nil {
+		t.Fatal(err)
+	}
+	if strings.ToLower(mode) != "wal" {
+		t.Fatalf("journal_mode = %q, want wal", mode)
+	}
+	var fk int
+	if err := db.QueryRow(`PRAGMA foreign_keys`).Scan(&fk); err != nil {
+		t.Fatal(err)
+	}
+	if fk != 1 {
+		t.Fatalf("foreign_keys = %d, want 1", fk)
+	}
+	var busy int
+	if err := db.QueryRow(`PRAGMA busy_timeout`).Scan(&busy); err != nil {
+		t.Fatal(err)
+	}
+	if busy != 5000 {
+		t.Fatalf("busy_timeout = %d, want 5000", busy)
 	}
 }

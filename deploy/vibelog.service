@@ -1,0 +1,24 @@
+[Unit]
+Description=VibeLog prompt journal
+Documentation=https://github.com/enpidi26/vibelog
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=vibelog
+Group=vibelog
+WorkingDirectory=/var/lib/vibelog
+EnvironmentFile=-/etc/vibelog/vibelog.env
+ExecStart=/usr/local/bin/vibelog
+Restart=on-failure
+RestartSec=3
+StateDirectory=vibelog
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

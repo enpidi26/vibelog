@@ -8,7 +8,7 @@ Jangan menganggap klaim README sebagai bukti tanpa membaca bagian ini.
 ### Backend
 
 - `go vet ./...` bersih, `gofmt -l .` kosong.
-- `go test -count=1 ./...` **22/22 lolos**, termasuk:
+- `CGO_ENABLED=0 go test -count=1 ./...` **23/23 lolos**, termasuk:
   - migrasi bernomor idempoten dan tercatat di `schema_migrations`;
   - secret JWT otomatis dibuat, dipakai ulang antar restart, dan tidak
     ditulis bila `JWT_SECRET` diisi;
@@ -20,10 +20,12 @@ Jangan menganggap klaim README sebagai bukti tanpa membaca bagian ini.
   - filter `q` dan `tag` meng-escape `%` dan `_`;
   - ekspor memuat seluruh entri (250 entri, bukan hanya 100);
   - pesan MIME tidak mengandung CR ganda;
+  - pragma SQLite aktif: WAL, foreign keys, busy timeout;
   - `/health` melaporkan status database;
   - isolasi antar user, duplikasi iterasi, ringkasan, dan ekspor tetap lolos
     seperti sebelumnya.
-- `go build` menghasilkan satu binary dengan frontend di-embed.
+- `CGO_ENABLED=0 go build` menghasilkan satu binary dengan frontend di-embed,
+  tanpa gcc dan tanpa CGO (driver SQLite murni-Go).
 
 ### Smoke test satu binary (production mode)
 
@@ -55,6 +57,9 @@ Dijalankan dengan `APP_ENV=production`, database kosong, tanpa `JWT_SECRET`:
   mesin ini. Dockerfile dan compose ditulis untuk build dari root repo;
   verifikasi build image harus dilakukan di mesin dengan Docker:
   `docker compose up -d --build`.
+- **Workflow GitHub Actions, release binary, dan `scripts/install.sh` belum
+  dijalankan** di mesin ini. CI/release disiapkan untuk Go 1.26 + Node 22 dan
+  build `CGO_ENABLED=0`; validasi sebenarnya terjadi saat tag `v*` di-push.
 - **SMTP dan Resend tidak diuji ke server sungguhan.** Kode memakai
   `net/smtp` (STARTTLS/implicit) dan Resend API; yang diuji adalah jalur
   `console` dan `off`.

@@ -9,3 +9,5 @@ backend/*.exe
 backend/web/dist
 Dokumentasi
 docs
+dist
+.github

@@ -93,21 +93,42 @@ host:
 Restore: hentikan container, ganti `/data/vibelog.db` dengan file arsip,
 start lagi.
 
-## Menjalankan tanpa Docker
+## Self-host tanpa Docker (binary + systemd)
 
-Butuh Go 1.24+ (CGO untuk SQLite), Node.js 20+, dan gcc.
+Runtime-nya satu binary murni-Go: SQLite dan frontend sudah di dalamnya. Tidak
+butuh gcc, Node, nginx, atau Docker di server.
 
-```bash
-./scripts/run.sh
-# Buka http://127.0.0.1:8080
-```
-
-Atau build satu binary secara manual:
+Instal di Linux (release terbaru, otomatis membuat service systemd):
 
 ```bash
-make build          # frontend + embed + backend
-./backend/vibelog   # BASE_URL, DATABASE_PATH, dst dari environment
+curl -fsSLO https://raw.githubusercontent.com/enpidi26/vibelog/main/scripts/install.sh
+less install.sh          # periksa dulu
+sudo bash install.sh
 ```
+
+Script membuat user sistem `vibelog`, data di `/var/lib/vibelog`,
+konfigurasi di `/etc/vibelog/vibelog.env`, lalu menyalakan service. Setelah itu:
+
+```bash
+sudo nano /etc/vibelog/vibelog.env   # set BASE_URL
+sudo systemctl restart vibelog
+journalctl -u vibelog -f             # magic link console tampil di sini
+```
+
+Manual tanpa script/systemd: unduh arsip dari halaman Releases, ekstrak, lalu
+
+```bash
+APP_ENV=production BASE_URL=http://localhost:8080 DATABASE_PATH=/var/lib/vibelog/vibelog.db ./vibelog
+```
+
+Build dari source (Go 1.26+, Node.js 22+, tanpa gcc):
+
+```bash
+make build          # frontend di-embed, lalu binary Go
+./backend/vibelog
+```
+
+Docker Compose tetap tersedia sebagai alternatif (bagian di atas).
 
 ## Konfigurasi
 

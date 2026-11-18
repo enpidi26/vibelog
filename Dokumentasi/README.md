@@ -147,7 +147,7 @@ Error selalu berbentuk `{"error":{"code":"...","message":"..."}}`.
 
 ### 10. Menjalankan secara lokal
 
-Prasyarat: Go 1.24+, Node.js 20+, dan gcc untuk driver SQLite.
+Prasyarat build dari source: Go 1.26+ dan Node.js 22+. Tidak perlu gcc; SQLite memakai driver murni-Go. Untuk server, tersedia release binary dan script install systemd tanpa Docker.
 
 ```bash
 ./scripts/run.sh

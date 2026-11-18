@@ -15,3 +15,5 @@ frontend/dist/
 *.exe
 frontend/dev.log
 backend/dev.log
+
+dist/
