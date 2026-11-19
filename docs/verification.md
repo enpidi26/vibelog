@@ -96,11 +96,12 @@ dan 390x844:
   `docker compose up -d --build`.
 - **CI GitHub Actions sudah hijau** di Ubuntu (Go 1.26, Node 22,
   `CGO_ENABLED=0`): typecheck, build frontend, `go vet`, dan 47 test lolos.
-- **Release sudah dibuat dan workflow-nya hijau.** Tag `v1.0.0` dan `v1.0.1`
-  menghasilkan binary linux amd64/arm64, macOS, Windows, plus checksums.
-  `install.sh` diuji dari release sungguhan dengan `VIBELOG_DRY_RUN=1`:
-  unduhan, checksum, dan ekstraksi lolos. Langkah `useradd` + systemd belum
-  dijalankan karena mesin ini bukan Linux/root; itu bagian standar systemd.
+- **Release sudah dibuat dan workflow-nya hijau.** Tag `v1.0.0`, `v1.0.1`,
+  dan `v1.1.0` menghasilkan binary linux amd64/arm64, macOS, Windows, plus
+  checksums. `v1.1.0` adalah rilis pertama dengan lisensi AGPL-3.0 dan UI
+  yang sudah disederhanakan. `install.sh` diuji dari rilis `v1.0.1` dengan
+  `VIBELOG_DRY_RUN=1`: unduhan, checksum, dan ekstraksi lolos. Langkah
+  `useradd` + systemd belum dijalankan karena mesin ini bukan Linux/root; itu bagian standar systemd.
 - **SMTP dan Resend tidak diuji ke server sungguhan.** Kode memakai
   `net/smtp` (STARTTLS/implicit) dan Resend API; yang diuji adalah jalur
   `console` dan `off`.
