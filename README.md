@@ -246,4 +246,10 @@ set `ALLOW_REGISTRATION=false` setelah akun dibuat.
 
 ## Lisensi
 
-MIT. Lihat [`LICENSE`](LICENSE).
+Kode sumber memakai **MIT**. Lihat [`LICENSE`](LICENSE). MIT mengizinkan
+fork, penggunaan komersial, dan redistribusi closed-source; itu konsekuensi
+open source dan tidak bisa dicabut untuk salinan yang sudah beredar.
+
+Nama, logo, dan identitas visual VibeLog tidak ikut dilisensikan lewat MIT.
+Lihat [`TRADEMARK.md`](TRADEMARK.md). Aturan kontribusi ada di
+[`CONTRIBUTING.md`](CONTRIBUTING.md).
