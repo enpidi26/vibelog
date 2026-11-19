@@ -246,10 +246,17 @@ set `ALLOW_REGISTRATION=false` setelah akun dibuat.
 
 ## Lisensi
 
-Kode sumber memakai **MIT**. Lihat [`LICENSE`](LICENSE). MIT mengizinkan
-fork, penggunaan komersial, dan redistribusi closed-source; itu konsekuensi
-open source dan tidak bisa dicabut untuk salinan yang sudah beredar.
+Kode sumber memakai **GNU Affero General Public License v3.0 only**
+(AGPL-3.0-only). Lihat [`LICENSE`](LICENSE) dan [`COPYRIGHT`](COPYRIGHT).
 
-Nama, logo, dan identitas visual VibeLog tidak ikut dilisensikan lewat MIT.
+AGPL mewajibkan siapa pun yang menjalankan versi modifikasi sebagai layanan
+jaringan untuk menawarkan source yang sesuai. Untuk penggunaan yang tidak
+ingin memenuhi syarat AGPL, lisensi komersial tersedia dari pemilik proyek.
+
+Nama, logo, dan identitas visual VibeLog tidak ikut dilisensikan lewat AGPL.
 Lihat [`TRADEMARK.md`](TRADEMARK.md). Aturan kontribusi ada di
 [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+Versi sebelum perubahan lisensi ini sempat dirilis di bawah MIT; salinan
+yang sudah beredar tetap tunduk pada MIT. Versi saat ini dan seterusnya
+memakai AGPL-3.0-only.

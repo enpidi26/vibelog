@@ -15,8 +15,8 @@ Thanks for taking the time to contribute.
 
 By submitting a pull request, patch, or any other contribution, you agree that:
 
-1. Your contribution is licensed under the repository's current source
-   license (see `LICENSE`).
+1. Your contribution is licensed under the GNU Affero General Public
+   License v3.0 only (AGPL-3.0-only, see `LICENSE`).
 2. You grant Muhammad Navid Athallah a perpetual, worldwide, non-exclusive,
    royalty-free, irrevocable license to use, reproduce, modify, distribute,
    sublicense, and relicense your contribution, including under a commercial

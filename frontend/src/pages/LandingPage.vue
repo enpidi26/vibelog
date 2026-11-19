@@ -36,7 +36,7 @@
       </main>
 
       <footer class="frame-foot">
-        <p class="micro-label">© 2026 VibeLog. MIT licensed. · <a href="https://github.com/enpidi26/vibelog" rel="noopener">GitHub</a></p>
+        <p class="micro-label">© 2026 VibeLog. AGPL-3.0 licensed. · <a href="https://github.com/enpidi26/vibelog" rel="noopener">GitHub</a></p>
       </footer>
     </div>
   </div>

@@ -68,7 +68,7 @@ Dijalankan dengan `APP_ENV=production`, database kosong, tanpa `JWT_SECRET`:
   entri dihapus, ID parent tidak lagi ditampilkan, proyek aktif otomatis
   terpilih saat membuat entri, dan copy prompt punya fallback.
 - `downloadBlob` menunda pelepasan blob URL agar unduhan tidak terpotong.
-- Judul dokumen berubah per rute; footer landing menyebut lisensi MIT.
+- Judul dokumen berubah per rute; footer landing menyebut lisensi AGPL-3.0.
 
 ### End-to-end browser (Chrome DevTools Protocol)
 
