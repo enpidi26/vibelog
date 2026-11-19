@@ -23,14 +23,14 @@
       </div>
       <div class="field">
         <label for="entry-model">AI Model</label>
-        <input id="entry-model" v-model="model" type="text" maxlength="60" required list="model-list" placeholder="Claude" />
+        <input id="entry-model" v-model="model" type="text" maxlength="60" required list="model-list" placeholder="Claude, GPT, Gemini" />
         <datalist id="model-list">
           <option v-for="m in MODEL_SUGGESTIONS" :key="m" :value="m" />
         </datalist>
       </div>
       <div class="field">
         <label for="entry-tool">Tool</label>
-        <input id="entry-tool" v-model="tool" type="text" maxlength="60" required list="tool-list" placeholder="Cursor" />
+        <input id="entry-tool" v-model="tool" type="text" maxlength="60" required list="tool-list" placeholder="Cursor, VS Code" />
         <datalist id="tool-list">
           <option v-for="t in TOOL_SUGGESTIONS" :key="t" :value="t" />
         </datalist>

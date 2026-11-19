@@ -37,7 +37,7 @@
 
     <footer class="card-actions">
       <button class="btn small" type="button" @click="$emit('edit', entry)">Edit</button>
-      <button class="btn small" type="button" :disabled="duplicating" @click="$emit('duplicate', entry)">
+      <button class="btn small" type="button" :disabled="duplicating" title="Copy this entry as the next attempt" aria-label="Copy this entry as the next attempt" @click="$emit('duplicate', entry)">
         {{ duplicating ? 'Creating...' : 'Next iteration' }}
       </button>
       <button class="btn small danger" type="button" :disabled="deleting" @click="$emit('delete', entry)">

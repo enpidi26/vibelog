@@ -4,7 +4,7 @@
     <div class="top-actions">
       <span v-if="userName" class="user-name">{{ userName }}</span>
       <details ref="exportMenu" class="export-menu">
-        <summary class="btn small" :class="{ disabled: exporting }">Export</summary>
+        <summary class="btn small" :class="{ disabled: exporting }" title="Export the filtered entries">Export</summary>
         <div class="export-options">
           <button type="button" :disabled="exporting" @click="choose('md')">Markdown</button>
           <button type="button" :disabled="exporting" @click="choose('json')">JSON</button>
